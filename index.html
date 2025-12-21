@@ -32,11 +32,25 @@ body{
   padding:28px 18px 40px;
 }
 
+/* ===== LOGO ESTILO MOCKUP ===== */
+.logo-box{
+  background:#fff;
+  border-radius:16px;
+  padding:12px 18px;
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  box-shadow:0 8px 22px rgba(0,0,0,.12);
+  margin:10px auto 20px;
+}
+
 .logo{
-  width:170px;
-  margin:10px auto 18px;
+  width:100%;
+  max-width:230px;
+  height:auto;
   display:block;
 }
+/* ============================== */
 
 h1{
   margin:0;
@@ -117,9 +131,9 @@ select{
 
 <div class="app">
 
-  <img class="logo"
-  src="data:image/png;base64,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"
-  alt="Bolivia Imports">
+  <div class="logo-box">
+    <img class="logo" src="LOGO_EDITABLE_oficial.png" alt="Bolivia Imports">
+  </div>
 
   <h1>Gestor de Entregas</h1>
   <div class="subtitle">Confirmación de entrega del pedido</div>
