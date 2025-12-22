@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gestor de Entregas</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
@@ -10,135 +10,80 @@
 <style>
 :root{
   --bg:#f2f5fb;
-  --card:#ffffff;
+  --card:#fff;
   --soft:#f4f6fb;
   --primary:#2f6fed;
   --primary-dark:#2459c8;
-  --text:#0f172a;
-  --muted:#6b7280;
 }
-
-*{box-sizing:border-box}
 
 body{
   margin:0;
-  min-height:100vh;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
+  font-family:-apple-system,BlinkMacSystemFont,Roboto,Arial;
   background:var(--bg);
   display:flex;
   justify-content:center;
 }
 
 .app{
-  width:100%;
   max-width:430px;
+  width:100%;
   padding:22px 18px 40px;
 }
 
 .logo{
   display:block;
-  margin:12px auto 16px;
+  margin:14px auto;
   max-width:240px;
 }
 
-/* TEXTOS */
-h1{
-  margin:0;
-  text-align:center;
-  font-size:28px;
-  font-weight:800;
-}
-
-.subtitle{
-  text-align:center;
-  margin-top:6px;
-  font-size:16px;
-  color:var(--muted);
-}
+h1{text-align:center;margin:0}
+.subtitle{text-align:center;color:#6b7280;margin:6px 0 14px}
 
 .id-pill{
-  margin:20px auto 24px;
   display:none;
+  margin:0 auto 20px;
   padding:12px 26px;
   border-radius:999px;
   background:#eef2ff;
   font-weight:600;
-  font-size:15px;
 }
 
-/* CARD */
 .card{
   background:var(--card);
   border-radius:30px;
-  padding:22px 18px 26px;
+  padding:22px;
   box-shadow:0 22px 45px rgba(0,0,0,.12);
 }
 
-label{
-  display:block;
-  font-weight:700;
-  font-size:15px;
-  margin-bottom:8px;
-}
+label{font-weight:700;display:block;margin:14px 0 8px}
 
-/* SELECT */
-.select-wrap{
-  position:relative;
-  margin-bottom:22px;
-}
-
-.select-wrap select{
+select,input[type=file]{
   width:100%;
-  padding:18px 48px 18px 18px;
+  padding:18px;
   border-radius:22px;
   border:none;
   background:var(--soft);
-  font-size:16px;
-  appearance:none;
 }
 
-.select-wrap::after{
-  content:"▾";
-  position:absolute;
-  right:18px;
-  top:50%;
-  transform:translateY(-50%);
-}
-
-/* BOTONES */
-.btn{
+button{
   width:100%;
+  padding:18px;
   border:none;
   border-radius:26px;
-  padding:18px;
-  font-size:17px;
   font-weight:800;
+  margin-top:12px;
   cursor:pointer;
 }
 
-.btn-primary{
+.primary{
   background:linear-gradient(135deg,var(--primary),var(--primary-dark));
   color:#fff;
-  margin-top:10px;
 }
 
-.btn-secondary{
-  background:#111827;
-  color:#fff;
-  margin-bottom:14px;
-}
+.dark{background:#111827;color:#fff}
 
-.btn:disabled{
-  opacity:.4;
-}
+#qr-reader{display:none;margin-bottom:12px}
 
-/* QR */
-#qr-reader{
-  display:none;
-  margin-bottom:16px;
-}
-
-/* MODAL */
 .overlay{
   position:fixed;
   inset:0;
@@ -150,16 +95,15 @@ label{
 
 .modal{
   background:#fff;
+  padding:36px;
   border-radius:26px;
-  padding:36px 26px;
-  width:85%;
-  max-width:360px;
   text-align:center;
 }
 
-.check{
-  font-size:56px;
-  color:#22c55e;
+.loader{
+  display:none;
+  text-align:center;
+  font-weight:700;
 }
 </style>
 </head>
@@ -168,96 +112,102 @@ label{
 
 <div class="app">
 
-  <img class="logo" src="LOGO_EDITABLE_oficial.png">
+<img class="logo" src="LOGO_EDITABLE_oficial.png">
 
-  <h1>Gestor de Entregas</h1>
-  <div class="subtitle">Confirmación de entrega del pedido</div>
+<h1>Gestor de Entregas</h1>
+<div class="subtitle">Confirmación de entrega del pedido</div>
 
-  <!-- ID -->
-  <div style="text-align:center">
-    <div class="id-pill" id="idCliente"></div>
-  </div>
+<div class="id-pill" id="idCliente"></div>
 
-  <div class="card">
+<div class="card">
 
-    <button class="btn btn-secondary" onclick="iniciarQR()">📷 Escanear QR</button>
-    <div id="qr-reader"></div>
+<button class="dark" onclick="iniciarQR()">📷 Escanear QR</button>
+<div id="qr-reader"></div>
 
-    <label>Empleado que realiza la entrega</label>
-    <div class="select-wrap">
-      <select id="empleado" disabled>
-        <option>Seleccione</option>
-        <option>Fernando</option>
-        <option>Felipe</option>
-        <option>Brandon</option>
-        <option>Iver</option>
-        <option>Leonardo</option>
-      </select>
-    </div>
+<label>Empleado que realiza la entrega</label>
+<select id="empleado" disabled>
+  <option>Seleccione</option>
+  <option>Fernando</option>
+  <option>Felipe</option>
+  <option>Brandon</option>
+  <option>Iver</option>
+  <option>Leonardo</option>
+</select>
 
-    <label>Foto de la entrega</label>
-    <button class="btn btn-primary" disabled>Seleccionar foto</button>
+<label>Foto de la entrega</label>
+<input type="file" id="foto" accept="image/*" capture disabled>
 
-    <button class="btn btn-primary" disabled onclick="mostrarPopup()">Confirmar entrega</button>
+<button class="primary" onclick="enviar()" disabled id="btnEnviar">
+  Confirmar entrega
+</button>
 
-  </div>
+<div class="loader" id="loader">Registrando entrega…</div>
 
 </div>
+</div>
 
-<!-- POPUP -->
 <div class="overlay" id="overlay">
   <div class="modal">
-    <div class="check">✔</div>
-    <h2>Entrega registrada correctamente</h2>
-    <button class="btn btn-primary" onclick="cerrarPopup()">OK</button>
+    <h2>✔ Entrega registrada</h2>
+    <button class="primary" onclick="cerrar()">OK</button>
   </div>
 </div>
 
+<audio id="sound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+
 <script>
-let qr;
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbyV-zd8vtaWoxdjwUw5vb1GIjQvyr5c2ZauiAQsaA08uIAqM7uWsBzAYMgNzMjZQeHy/exec";
+let ID = "";
 
 function iniciarQR(){
-  const reader = document.getElementById('qr-reader');
-  reader.style.display='block';
+  const qr = new Html5Qrcode("qr-reader");
+  document.getElementById('qr-reader').style.display='block';
 
-  qr = new Html5Qrcode("qr-reader");
-  qr.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: 220 },
-    (text) => {
-      qr.stop();
-      reader.style.display='none';
-      establecerID(text);
+  qr.start({facingMode:"environment"},{fps:10,qrbox:220},txt=>{
+    qr.stop();
+    if(navigator.vibrate) navigator.vibrate(200);
+
+    if(txt.includes("id=")){
+      ID = new URL(txt).searchParams.get("id");
+    } else {
+      ID = txt;
     }
-  );
+
+    document.getElementById('idCliente').textContent="ID Cliente: "+ID;
+    document.getElementById('idCliente').style.display="inline-block";
+
+    document.getElementById('empleado').disabled=false;
+    document.getElementById('foto').disabled=false;
+    document.getElementById('btnEnviar').disabled=false;
+  });
 }
 
-function establecerID(textoQR){
-  let id = textoQR;
+function enviar(){
+  const emp=document.getElementById('empleado').value;
+  const file=document.getElementById('foto').files[0];
+  if(!emp||!file) return alert("Complete todo");
 
-  // Si es URL, extraer ?id=
-  if (textoQR.includes("id=")) {
-    try {
-      const url = new URL(textoQR);
-      id = url.searchParams.get("id");
-    } catch (e) {
-      id = textoQR.split("id=")[1];
-    }
-  }
-
-  const pill = document.getElementById('idCliente');
-  pill.textContent = "ID Cliente: " + id;
-  pill.style.display = 'inline-block';
-
-  document.getElementById('empleado').disabled = false;
-  document.querySelectorAll('.btn-primary').forEach(b => b.disabled=false);
-}
-
-function mostrarPopup(){
+  document.getElementById('loader').style.display='block';
   document.getElementById('overlay').style.display='flex';
+
+  const reader=new FileReader();
+  reader.onload=()=>{
+    fetch(ENDPOINT,{
+      method:"POST",
+      body:JSON.stringify({
+        idCliente:ID,
+        empleado:emp,
+        foto:reader.result
+      })
+    });
+
+    document.getElementById('sound').play();
+    if(navigator.vibrate) navigator.vibrate([200,100,200]);
+  };
+  reader.readAsDataURL(file);
 }
 
-function cerrarPopup(){
+function cerrar(){
   document.getElementById('overlay').style.display='none';
 }
 </script>
