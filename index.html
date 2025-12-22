@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gestor de Entregas</title>
 
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2f6fed">
+
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
@@ -227,6 +230,9 @@ input[type=file]{
 </button>
 
 <div class="loader" id="loader">Registrando entrega…</div>
+<div class="loader" id="done" style="display:none;color:#16a34a;">
+  ✔ Entrega registrada correctamente
+</div>
 
 </div>
 </div>
@@ -294,6 +300,18 @@ function enviar(){
 
 function cerrar(){
   document.getElementById('overlay').style.display='none';
+  document.getElementById('loader').style.display='none';
+  document.getElementById('done').style.display='block';
+
+  // Reset completo
+  ID="";
+  document.getElementById('idCliente').style.display='none';
+  document.getElementById('empleado').value="Seleccione";
+  document.getElementById('empleado').disabled=true;
+  document.getElementById('foto').value="";
+  document.getElementById('foto').disabled=true;
+  document.getElementById('fileName').textContent="Ningún archivo seleccionado";
+  document.getElementById('btnEnviar').disabled=true;
 }
 </script>
 
