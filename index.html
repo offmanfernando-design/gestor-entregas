@@ -301,7 +301,13 @@ function enviar(){
 function cerrar(){
   document.getElementById('overlay').style.display='none';
   document.getElementById('loader').style.display='none';
-  document.getElementById('done').style.display='block';
+  const done = document.getElementById('done');
+  done.style.display = 'block';
+
+// Ocultar automáticamente después de 3 segundos
+setTimeout(() => {
+  done.style.display = 'none';
+}, 3000);
 
   // Reset completo
   ID="";
