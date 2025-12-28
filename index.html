@@ -254,6 +254,7 @@ function validarQR(idCliente){
     }
 
     ID = resp.data.id;
+    QR_VALIDO = true;
     document.getElementById("idCliente").textContent =
       "ID Cliente: " + ID;
     document.getElementById("idCliente").style.display = "block";
