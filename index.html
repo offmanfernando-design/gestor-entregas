@@ -19,12 +19,8 @@
   --primary-dark:#2459c8;
   --text:#0f172a;
   --muted:#6b7280;
-  --success:#16a34a;
-  --error:#dc2626;
 }
-
 *{box-sizing:border-box}
-
 body{
   margin:0;
   font-family:-apple-system,BlinkMacSystemFont,Roboto,Arial;
@@ -32,19 +28,16 @@ body{
   display:flex;
   justify-content:center;
 }
-
 .app{
   width:100%;
   max-width:430px;
   padding:22px 18px 40px;
 }
-
 .logo{
   display:block;
   margin:14px auto 18px;
   max-width:240px;
 }
-
 h1{
   margin:0;
   text-align:center;
@@ -52,52 +45,35 @@ h1{
   font-weight:800;
   color:var(--text);
 }
-
 .subtitle{
   text-align:center;
-  margin:6px 0 16px;
+  margin-top:6px;
+  margin-bottom:14px;
   font-size:16px;
   color:var(--muted);
 }
-
-/* ID */
 .id-pill{
   display:none;
   margin:0 auto 22px;
   padding:12px 28px;
   border-radius:999px;
   background:#eef2ff;
-  font-weight:700;
+  font-weight:600;
   font-size:15px;
   text-align:center;
 }
-
-/* CARD */
 .card{
   background:var(--card);
   border-radius:30px;
   padding:22px 18px 26px;
   box-shadow:0 22px 45px rgba(0,0,0,.12);
 }
-
-/* STATUS */
-.status{
-  display:none;
-  text-align:center;
-  font-weight:700;
-  margin-bottom:14px;
-}
-.status.ok{ color:var(--success); }
-.status.err{ color:var(--error); }
-
-/* SELECT */
 label{
   display:block;
   font-weight:700;
   font-size:15px;
   margin:18px 0 8px;
 }
-
 .select-wrap{
   position:relative;
 }
@@ -118,8 +94,6 @@ label{
   transform:translateY(-50%);
   color:#555;
 }
-
-/* BUTTONS */
 button{
   width:100%;
   border:none;
@@ -129,25 +103,17 @@ button{
   font-weight:800;
   cursor:pointer;
 }
-
 .btn-dark{
   background:#111827;
   color:#fff;
   margin-bottom:16px;
 }
-
 .btn-primary{
   background:linear-gradient(135deg,var(--primary),var(--primary-dark));
   color:#fff;
   margin-top:16px;
 }
-
-button:disabled{
-  opacity:.45;
-  cursor:not-allowed;
-}
-
-/* FOTO */
+button:disabled{opacity:.4}
 .upload-btn{
   background:var(--primary);
   color:#fff;
@@ -157,41 +123,20 @@ button:disabled{
   font-weight:800;
   margin-top:6px;
 }
-
 .upload-info{
   text-align:center;
   font-size:13px;
   color:var(--muted);
   margin-top:6px;
 }
-
-input[type=file]{ display:none }
-
-/* LOADER */
+input[type=file]{display:none}
 .loader{
   display:none;
+  margin-top:14px;
   text-align:center;
-  margin-top:16px;
-  font-weight:700;
+  font-size:14px;
+  font-weight:600;
   color:var(--muted);
-}
-
-/* MODAL */
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.45);
-  display:none;
-  align-items:center;
-  justify-content:center;
-}
-.modal{
-  background:#fff;
-  border-radius:26px;
-  padding:36px 26px;
-  width:85%;
-  max-width:360px;
-  text-align:center;
 }
 </style>
 </head>
@@ -209,15 +154,13 @@ input[type=file]{ display:none }
 
 <div class="card">
 
-<div class="status" id="status"></div>
-
 <button class="btn-dark" onclick="iniciarQR()">📷 Escanear QR</button>
 <div id="qr-reader"></div>
 
 <label>Empleado que realiza la entrega</label>
 <div class="select-wrap">
   <select id="empleado" disabled>
-    <option value="">Seleccione</option>
+    <option>Seleccione</option>
     <option>Fernando</option>
     <option>Felipe</option>
     <option>Brandon</option>
@@ -227,7 +170,9 @@ input[type=file]{ display:none }
 </div>
 
 <label>Foto de la entrega</label>
-<div class="upload-btn" onclick="foto.click()">Seleccionar foto</div>
+<div class="upload-btn" onclick="document.getElementById('foto').click()">
+  Seleccionar foto
+</div>
 <div class="upload-info" id="fileName">Ningún archivo seleccionado</div>
 <input type="file" id="foto" accept="image/*" capture disabled>
 
@@ -240,98 +185,101 @@ input[type=file]{ display:none }
 </div>
 </div>
 
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <h2>✔ Entrega registrada correctamente</h2>
-    <button class="btn-primary" onclick="cerrar()">OK</button>
-  </div>
-</div>
-
-<audio id="sound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
-
 <script>
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbyV-zd8vtaWoxdjwUw5vb1GIjQvyr5c2ZauiAQsaA08uIAqM7uWsBzAYMgNzMjZQeHy/exec";
-let ID = "";
 
-function setStatus(msg, type){
-  const s = status;
-  s.textContent = msg;
-  s.className = "status " + type;
-  s.style.display = "block";
-}
+let ID = null;
+let QR_VALIDO = false;
 
 function iniciarQR(){
   const qr = new Html5Qrcode("qr-reader");
-  qr.start({facingMode:"environment"},{fps:10,qrbox:220},txt=>{
+
+  qr.start({facingMode:"environment"},{fps:10,qrbox:220},textoQR=>{
     qr.stop();
     if(navigator.vibrate) navigator.vibrate(200);
 
-    ID = txt.includes("id=") ? new URL(txt).searchParams.get("id") : txt;
+    const idDetectado = textoQR.includes("id=")
+      ? new URL(textoQR).searchParams.get("id")
+      : textoQR;
 
-    fetch(ENDPOINT + "?id=" + encodeURIComponent(ID))
-      .then(r => r.text())
-      .then(html => {
-        if (html.includes("QR inválido")) {
-          setStatus("QR inválido. No pertenece al sistema.", "err");
+    fetch(ENDPOINT + "?action=validarQR&id=" + encodeURIComponent(idDetectado))
+      .then(r=>r.json())
+      .then(resp=>{
+        if(!resp.ok){
+          alert(resp.mensaje);
+          bloquearFormulario();
           return;
         }
 
-        idCliente.textContent = "ID Cliente: " + ID;
-        idCliente.style.display = "block";
-        setStatus("QR válido. Podés continuar.", "ok");
-
-        empleado.disabled = false;
-        foto.disabled = false;
-        btnEnviar.disabled = false;
+        ID = resp.data.id;
+        QR_VALIDO = true;
+        mostrarID(ID);
+        habilitarFormulario();
+      })
+      .catch(()=>{
+        alert("Error validando el QR");
+        bloquearFormulario();
       });
   });
 }
 
-foto.addEventListener("change", e=>{
-  fileName.textContent = e.target.files[0]?.name || "Ningún archivo seleccionado";
+function mostrarID(id){
+  const pill=document.getElementById('idCliente');
+  pill.textContent="ID Cliente: "+id;
+  pill.style.display="block";
+}
+
+function habilitarFormulario(){
+  document.getElementById('empleado').disabled=false;
+  document.getElementById('foto').disabled=false;
+  document.getElementById('btnEnviar').disabled=false;
+}
+
+function bloquearFormulario(){
+  ID=null;
+  QR_VALIDO=false;
+  document.getElementById('idCliente').style.display='none';
+  document.getElementById('empleado').disabled=true;
+  document.getElementById('foto').disabled=true;
+  document.getElementById('btnEnviar').disabled=true;
+}
+
+document.getElementById('foto').addEventListener('change',e=>{
+  document.getElementById('fileName').textContent =
+    e.target.files[0]?.name || 'Ningún archivo seleccionado';
 });
 
 function enviar(){
-  if(!empleado.value || !foto.files[0]){
-    alert("Complete todos los campos");
+  if(!QR_VALIDO || !ID){
+    alert("Debe escanear un QR válido primero.");
     return;
   }
 
-  loader.style.display = "block";
-  overlay.style.display = "flex";
+  const emp=document.getElementById('empleado').value;
+  const file=document.getElementById('foto').files[0];
+  if(!emp||!file) return alert("Complete todo");
 
-  const reader = new FileReader();
-  reader.onload = ()=>{
+  document.getElementById('loader').style.display='block';
+
+  const reader=new FileReader();
+  reader.onload=()=>{
     fetch(ENDPOINT,{
       method:"POST",
       body:JSON.stringify({
         idCliente:ID,
-        empleado:empleado.value,
+        empleado:emp,
         foto:reader.result
       })
+    }).then(()=>{
+      document.getElementById('loader').style.display='none';
+      bloquearFormulario();
+      alert("Entrega registrada correctamente");
     });
-
-    sound.play();
-    if(navigator.vibrate) navigator.vibrate([200,100,200]);
   };
-  reader.readAsDataURL(foto.files[0]);
-}
-
-function cerrar(){
-  overlay.style.display = "none";
-  loader.style.display = "none";
-  status.style.display = "none";
-  idCliente.style.display = "none";
-
-  empleado.value = "";
-  empleado.disabled = true;
-  foto.value = "";
-  foto.disabled = true;
-  fileName.textContent = "Ningún archivo seleccionado";
-  btnEnviar.disabled = true;
-  ID = "";
+  reader.readAsDataURL(file);
 }
 </script>
 
 </body>
 </html>
+
