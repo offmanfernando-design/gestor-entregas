@@ -242,21 +242,21 @@ function iniciarQR(){
 function validarQR(idCliente){
   fetch(
     ENDPOINT +
-    "?action=validarQR&idCliente=" +
+    "?action=validarQR&id=" +
     encodeURIComponent(idCliente)
   )
   .then(r => r.json())
   .then(resp => {
     if(!resp.ok){
-      mostrarError(resp.mensaje);
+      mostrarError(resp.mensaje || "Este QR no pertenece a un cliente del sistema.");
       bloquearFormulario();
       return;
     }
 
     ID = resp.data.id;
     QR_VALIDO = true;
-    document.getElementById("idCliente").textContent =
-      "ID Cliente: " + ID;
+
+    document.getElementById("idCliente").textContent = "ID Cliente: " + ID;
     document.getElementById("idCliente").style.display = "block";
 
     habilitarFormulario();
@@ -290,24 +290,62 @@ foto.addEventListener("change",e=>{
 btnEnviar.addEventListener("click", confirmarEntrega);
 
 function confirmarEntrega(){
-  if(!QR_VALIDO) return;
+  const empleadoEl = document.getElementById('empleado');
+  const fotoEl = document.getElementById('foto');
+  const loaderEl = document.getElementById('loader');
 
-  const emp = empleado.value;
-  const file = foto.files[0];
-  if(!emp || !file) return mostrarError("Complete todos los campos.");
+  const emp = empleadoEl.value;
+  const file = fotoEl.files[0];
 
-  loader.style.display="block";
-  mostrarSuccess();
-  bloquearFormulario();
+  // VALIDACIONES CLARAS (no silenciosas)
+  if(!QR_VALIDO || !ID){
+    mostrarError("Debe escanear un QR válido primero.");
+    return;
+  }
+
+  if(!emp){
+    mostrarError("Seleccione el empleado que realiza la entrega.");
+    return;
+  }
+
+  if(!file){
+    mostrarError("Debe seleccionar una foto de la entrega.");
+    return;
+  }
+
+  // UX inmediata (lo que querías)
+  loaderEl.style.display = "block";
+  mostrarSuccess();          // visual rápido
+  bloquearFormulario();     // evita doble envío
 
   const reader = new FileReader();
-  reader.onload = ()=>{
-    fetch(ENDPOINT,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({ idCliente:ID, empleado:emp, foto:reader.result })
-    }).catch(()=>{});
+
+  reader.onload = () => {
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        idCliente: ID,
+        empleado: emp,
+        foto: reader.result
+      })
+    })
+    .then(r => r.json())
+    .then(res => {
+      loaderEl.style.display = "none";
+
+      if(!res.ok){
+        cerrarSuccess();
+        mostrarError(res.mensaje || "Error registrando la entrega.");
+      }
+    })
+    .catch(() => {
+      loaderEl.style.display = "none";
+      cerrarSuccess();
+      mostrarError("No se pudo conectar con el servidor.");
+    });
   };
+
   reader.readAsDataURL(file);
 }
 
