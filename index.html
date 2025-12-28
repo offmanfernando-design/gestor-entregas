@@ -19,6 +19,8 @@
   --primary-dark:#2459c8;
   --text:#0f172a;
   --muted:#6b7280;
+  --success:#16a34a;
+  --error:#dc2626;
 }
 
 *{box-sizing:border-box}
@@ -53,20 +55,19 @@ h1{
 
 .subtitle{
   text-align:center;
-  margin-top:6px;
-  margin-bottom:14px;
+  margin:6px 0 16px;
   font-size:16px;
   color:var(--muted);
 }
 
-/* ID CLIENTE */
+/* ID */
 .id-pill{
   display:none;
   margin:0 auto 22px;
   padding:12px 28px;
   border-radius:999px;
   background:#eef2ff;
-  font-weight:600;
+  font-weight:700;
   font-size:15px;
   text-align:center;
 }
@@ -79,6 +80,17 @@ h1{
   box-shadow:0 22px 45px rgba(0,0,0,.12);
 }
 
+/* STATUS */
+.status{
+  display:none;
+  text-align:center;
+  font-weight:700;
+  margin-bottom:14px;
+}
+.status.ok{ color:var(--success); }
+.status.err{ color:var(--error); }
+
+/* SELECT */
 label{
   display:block;
   font-weight:700;
@@ -86,11 +98,9 @@ label{
   margin:18px 0 8px;
 }
 
-/* SELECT */
 .select-wrap{
   position:relative;
 }
-
 .select-wrap select{
   width:100%;
   padding:18px 46px 18px 18px;
@@ -100,7 +110,6 @@ label{
   font-size:16px;
   appearance:none;
 }
-
 .select-wrap::after{
   content:"▾";
   position:absolute;
@@ -110,7 +119,7 @@ label{
   color:#555;
 }
 
-/* BOTONES */
+/* BUTTONS */
 button{
   width:100%;
   border:none;
@@ -134,7 +143,8 @@ button{
 }
 
 button:disabled{
-  opacity:.4;
+  opacity:.45;
+  cursor:not-allowed;
 }
 
 /* FOTO */
@@ -155,17 +165,14 @@ button:disabled{
   margin-top:6px;
 }
 
-input[type=file]{
-  display:none;
-}
+input[type=file]{ display:none }
 
 /* LOADER */
 .loader{
   display:none;
-  margin-top:14px;
   text-align:center;
-  font-size:14px;
-  font-weight:600;
+  margin-top:16px;
+  font-weight:700;
   color:var(--muted);
 }
 
@@ -178,7 +185,6 @@ input[type=file]{
   align-items:center;
   justify-content:center;
 }
-
 .modal{
   background:#fff;
   border-radius:26px;
@@ -203,13 +209,15 @@ input[type=file]{
 
 <div class="card">
 
+<div class="status" id="status"></div>
+
 <button class="btn-dark" onclick="iniciarQR()">📷 Escanear QR</button>
 <div id="qr-reader"></div>
 
 <label>Empleado que realiza la entrega</label>
 <div class="select-wrap">
   <select id="empleado" disabled>
-    <option>Seleccione</option>
+    <option value="">Seleccione</option>
     <option>Fernando</option>
     <option>Felipe</option>
     <option>Brandon</option>
@@ -219,9 +227,7 @@ input[type=file]{
 </div>
 
 <label>Foto de la entrega</label>
-<div class="upload-btn" onclick="document.getElementById('foto').click()">
-  Seleccionar foto
-</div>
+<div class="upload-btn" onclick="foto.click()">Seleccionar foto</div>
 <div class="upload-info" id="fileName">Ningún archivo seleccionado</div>
 <input type="file" id="foto" accept="image/*" capture disabled>
 
@@ -230,9 +236,6 @@ input[type=file]{
 </button>
 
 <div class="loader" id="loader">Registrando entrega…</div>
-<div class="loader" id="done" style="display:none;color:#16a34a;">
-  ✔ Entrega registrada correctamente
-</div>
 
 </div>
 </div>
@@ -247,77 +250,86 @@ input[type=file]{
 <audio id="sound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
 
 <script>
-const ENDPOINT="https://script.google.com/macros/s/AKfycbyV-zd8vtaWoxdjwUw5vb1GIjQvyr5c2ZauiAQsaA08uIAqM7uWsBzAYMgNzMjZQeHy/exec";
-let ID="";
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbyV-zd8vtaWoxdjwUw5vb1GIjQvyr5c2ZauiAQsaA08uIAqM7uWsBzAYMgNzMjZQeHy/exec";
+let ID = "";
+
+function setStatus(msg, type){
+  const s = status;
+  s.textContent = msg;
+  s.className = "status " + type;
+  s.style.display = "block";
+}
 
 function iniciarQR(){
-  const qr=new Html5Qrcode("qr-reader");
+  const qr = new Html5Qrcode("qr-reader");
   qr.start({facingMode:"environment"},{fps:10,qrbox:220},txt=>{
     qr.stop();
     if(navigator.vibrate) navigator.vibrate(200);
 
     ID = txt.includes("id=") ? new URL(txt).searchParams.get("id") : txt;
 
-    const pill=document.getElementById('idCliente');
-    pill.textContent="ID Cliente: "+ID;
-    pill.style.display="block";
+    fetch(ENDPOINT + "?id=" + encodeURIComponent(ID))
+      .then(r => r.text())
+      .then(html => {
+        if (html.includes("QR inválido")) {
+          setStatus("QR inválido. No pertenece al sistema.", "err");
+          return;
+        }
 
-    document.getElementById('empleado').disabled=false;
-    document.getElementById('foto').disabled=false;
-    document.getElementById('btnEnviar').disabled=false;
+        idCliente.textContent = "ID Cliente: " + ID;
+        idCliente.style.display = "block";
+        setStatus("QR válido. Podés continuar.", "ok");
+
+        empleado.disabled = false;
+        foto.disabled = false;
+        btnEnviar.disabled = false;
+      });
   });
 }
 
-document.getElementById('foto').addEventListener('change',e=>{
-  document.getElementById('fileName').textContent =
-    e.target.files[0]?.name || 'Ningún archivo seleccionado';
+foto.addEventListener("change", e=>{
+  fileName.textContent = e.target.files[0]?.name || "Ningún archivo seleccionado";
 });
 
 function enviar(){
-  const emp=document.getElementById('empleado').value;
-  const file=document.getElementById('foto').files[0];
-  if(!emp||!file) return alert("Complete todo");
+  if(!empleado.value || !foto.files[0]){
+    alert("Complete todos los campos");
+    return;
+  }
 
-  document.getElementById('loader').style.display='block';
-  document.getElementById('overlay').style.display='flex';
+  loader.style.display = "block";
+  overlay.style.display = "flex";
 
-  const reader=new FileReader();
-  reader.onload=()=>{
+  const reader = new FileReader();
+  reader.onload = ()=>{
     fetch(ENDPOINT,{
       method:"POST",
       body:JSON.stringify({
         idCliente:ID,
-        empleado:emp,
+        empleado:empleado.value,
         foto:reader.result
       })
     });
 
-    document.getElementById('sound').play();
+    sound.play();
     if(navigator.vibrate) navigator.vibrate([200,100,200]);
   };
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(foto.files[0]);
 }
 
 function cerrar(){
-  document.getElementById('overlay').style.display='none';
-  document.getElementById('loader').style.display='none';
-  const done = document.getElementById('done');
-  done.style.display = 'block';
+  overlay.style.display = "none";
+  loader.style.display = "none";
+  status.style.display = "none";
+  idCliente.style.display = "none";
 
-// Ocultar automáticamente después de 3 segundos
-setTimeout(() => {
-  done.style.display = 'none';
-}, 3000);
-
-  // Reset completo
-  ID="";
-  document.getElementById('idCliente').style.display='none';
-  document.getElementById('empleado').value="Seleccione";
-  document.getElementById('empleado').disabled=true;
-  document.getElementById('foto').value="";
-  document.getElementById('foto').disabled=true;
-  document.getElementById('fileName').textContent="Ningún archivo seleccionado";
-  document.getElementById('btnEnviar').disabled=true;
+  empleado.value = "";
+  empleado.disabled = true;
+  foto.value = "";
+  foto.disabled = true;
+  fileName.textContent = "Ningún archivo seleccionado";
+  btnEnviar.disabled = true;
+  ID = "";
 }
 </script>
 
