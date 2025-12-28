@@ -19,6 +19,8 @@
   --primary-dark:#2459c8;
   --text:#0f172a;
   --muted:#6b7280;
+  --danger:#dc2626;
+  --success:#16a34a;
 }
 *{box-sizing:border-box}
 body{
@@ -138,6 +140,28 @@ input[type=file]{display:none}
   font-weight:600;
   color:var(--muted);
 }
+
+/* MODALES */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+.modal{
+  background:#fff;
+  border-radius:26px;
+  padding:30px 22px;
+  width:85%;
+  max-width:340px;
+  text-align:center;
+}
+.modal h2{
+  margin-top:0;
+}
 </style>
 </head>
 
@@ -176,7 +200,7 @@ input[type=file]{display:none}
 <div class="upload-info" id="fileName">Ningún archivo seleccionado</div>
 <input type="file" id="foto" accept="image/*" capture disabled>
 
-<button class="btn-primary" id="btnEnviar" onclick="enviar()" disabled>
+<button class="btn-primary" id="btnEnviar" onclick="confirmarEntrega()" disabled>
   Confirmar entrega
 </button>
 
@@ -185,12 +209,33 @@ input[type=file]{display:none}
 </div>
 </div>
 
+<!-- MODAL ERROR -->
+<div class="overlay" id="overlayError">
+  <div class="modal">
+    <h2 style="color:var(--danger)">QR inválido</h2>
+    <p id="errorMsg">Este QR no pertenece a un cliente del sistema.</p>
+    <button class="btn-primary" onclick="cerrarError()">OK</button>
+  </div>
+</div>
+
+<!-- MODAL ÉXITO -->
+<div class="overlay" id="overlaySuccess">
+  <div class="modal">
+    <h2 style="color:var(--success)">✔ Entrega registrada</h2>
+    <p>La entrega fue registrada correctamente.</p>
+    <button class="btn-primary" onclick="cerrarSuccess()">OK</button>
+  </div>
+</div>
+
 <script>
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbyV-zd8vtaWoxdjwUw5vb1GIjQvyr5c2ZauiAQsaA08uIAqM7uWsBzAYMgNzMjZQeHy/exec";
 
 let ID = null;
 let QR_VALIDO = false;
 
+/* =====================
+   QR
+===================== */
 function iniciarQR(){
   const qr = new Html5Qrcode("qr-reader");
 
@@ -202,27 +247,38 @@ function iniciarQR(){
       ? new URL(textoQR).searchParams.get("id")
       : textoQR;
 
-    fetch(ENDPOINT + "?action=validarQR&id=" + encodeURIComponent(idDetectado))
-      .then(r=>r.json())
-      .then(resp=>{
-        if(!resp.ok){
-          alert(resp.mensaje);
-          bloquearFormulario();
-          return;
-        }
-
-        ID = resp.data.id;
-        QR_VALIDO = true;
-        mostrarID(ID);
-        habilitarFormulario();
-      })
-      .catch(()=>{
-        alert("Error validando el QR");
-        bloquearFormulario();
-      });
+    validarQR(idDetectado);
   });
 }
 
+function validarQR(idDetectado){
+  fetch(ENDPOINT,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ action:"validarQR", idCliente:idDetectado })
+  })
+  .then(r=>r.json())
+  .then(resp=>{
+    if(!resp.ok){
+      mostrarError(resp.mensaje);
+      bloquearFormulario();
+      return;
+    }
+
+    ID = resp.data.id;
+    QR_VALIDO = true;
+    mostrarID(ID);
+    habilitarFormulario();
+  })
+  .catch(()=>{
+    mostrarError("Error validando el QR");
+    bloquearFormulario();
+  });
+}
+
+/* =====================
+   FORM
+===================== */
 function mostrarID(id){
   const pill=document.getElementById('idCliente');
   pill.textContent="ID Cliente: "+id;
@@ -244,20 +300,14 @@ function bloquearFormulario(){
   document.getElementById('btnEnviar').disabled=true;
 }
 
-document.getElementById('foto').addEventListener('change',e=>{
-  document.getElementById('fileName').textContent =
-    e.target.files[0]?.name || 'Ningún archivo seleccionado';
-});
-
-function enviar(){
-  if(!QR_VALIDO || !ID){
-    alert("Debe escanear un QR válido primero.");
-    return;
-  }
-
+/* =====================
+   ENTREGA
+===================== */
+function confirmarEntrega(){
   const emp=document.getElementById('empleado').value;
   const file=document.getElementById('foto').files[0];
-  if(!emp||!file) return alert("Complete todo");
+
+  if(!QR_VALIDO || !ID || !emp || !file) return;
 
   document.getElementById('loader').style.display='block';
 
@@ -265,21 +315,50 @@ function enviar(){
   reader.onload=()=>{
     fetch(ENDPOINT,{
       method:"POST",
+      headers:{ "Content-Type":"application/json" },
       body:JSON.stringify({
         idCliente:ID,
         empleado:emp,
         foto:reader.result
       })
-    }).then(()=>{
+    })
+    .then(r=>r.json())
+    .then(res=>{
       document.getElementById('loader').style.display='none';
+
+      if(!res.ok){
+        mostrarError(res.mensaje || "Error registrando la entrega");
+        return;
+      }
+
+      mostrarSuccess();
       bloquearFormulario();
-      alert("Entrega registrada correctamente");
+    })
+    .catch(()=>{
+      document.getElementById('loader').style.display='none';
+      mostrarError("No se pudo registrar la entrega");
     });
   };
   reader.readAsDataURL(file);
+}
+
+/* =====================
+   MODALES
+===================== */
+function mostrarError(msg){
+  document.getElementById('errorMsg').textContent = msg;
+  document.getElementById('overlayError').style.display='flex';
+}
+function cerrarError(){
+  document.getElementById('overlayError').style.display='none';
+}
+function mostrarSuccess(){
+  document.getElementById('overlaySuccess').style.display='flex';
+}
+function cerrarSuccess(){
+  document.getElementById('overlaySuccess').style.display='none';
 }
 </script>
 
 </body>
 </html>
-
