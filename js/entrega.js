@@ -12,26 +12,6 @@ info.innerHTML = `
 `;
 
 function confirmar() {
-  const estado = document.getElementById("estado");
-  estado.textContent = "Confirmando...";
-
-  fetch(API_BASE, {
-    method: "POST",
-    body: JSON.stringify({
-      accion: "confirmarEntrega",
-      id: entrega.id
-    })
-  })
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok) {
-        estado.textContent = "Error al confirmar";
-        return;
-      }
-
-      window.location.href = "resultado.html";
-    })
-    .catch(() => {
-      estado.textContent = "Error de red";
-    });
+  window.location.href = "resultado.html";
 }
+
