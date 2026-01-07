@@ -1,1 +1,82 @@
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f6f8;
+  color: #111;
+}
+
+.home-header {
+  background: #111;
+  color: #fff;
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.logo {
+  width: 72px;
+  margin-bottom: 8px;
+}
+
+.home-header h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.home-header p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.home-grid {
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.home-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+}
+
+.home-card.primary {
+  background: #0a84ff;
+  color: #fff;
+}
+
+.home-card .icon {
+  font-size: 28px;
+}
+
+.home-card .title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.home-card .desc {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* TABLET */
+@media (min-width: 768px) {
+  .home-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 32px;
+  }
+}
 
