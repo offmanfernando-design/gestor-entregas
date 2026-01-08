@@ -58,61 +58,10 @@ function cargarCobros() {
  * Avisar cobro
  * =========================
  */
+
 function avisar(entregaId) {
-
-  fetch(`${API_BASE}?accion=datosWhatsappCobro&id=${entregaId}`)
-    .then(res => res.json())
-    .then(data => {
-
-      if (!data.ok) {
-        alert("No se pudieron obtener los datos del cobro");
-        return;
-      }
-
-      const cliente = data.cliente;
-      const productos = data.productos;
-      const total = data.total;
-      const mostrarHorario = data.mostrarHorario;
-
-      let mensaje = `Hola ${cliente}\n\n`;
-      mensaje += `Tu pedido llegó a nuestra oficina.\n\n`;
-
-      // 📦 Productos
-      productos.forEach((p, i) => {
-        mensaje += `${i + 1}) Producto: ${p.producto}\n`;
-        mensaje += `Costo: ${p.peso} kg × ${p.tipoCobro} × ${p.dolar} = ${p.subtotal} Bs\n\n`;
-      });
-
-      // 💰 Total (solo si hay más de un producto)
-      if (productos.length > 1) {
-        mensaje += `- Total a pagar: ${total} Bs\n\n`;
-      }
-
-      // 💳 Datos de pago
-      mensaje += `Pago: QR o efectivo (solo Bs)\n`;
-      mensaje += `QR: https://drive.google.com/file/d/1oDrw0G25xlUbMQX7ZaSS3Z_c2Bdt4gz6/view\n\n`;
-
-      // 📍 Horario y ubicación (solo Santa Cruz)
-      if (mostrarHorario) {
-        mensaje += `Horario: 09:30 a 12:00 y 14:30 a 18:15\n`;
-        mensaje += `Ubicación: https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n`;
-      }
-
-      mensaje += `— Bolivia Imports`;
-
-      // 📱 Abrir WhatsApp
-      const telefono = "59175607003"; // ← reemplaza por ahora
-      const url = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
-      window.open(url, "_blank");
-
-      // 📝 Registrar aviso
-      fetch(`${API_BASE}?accion=avisarCobro&id=${entregaId}&canal=WHATSAPP`)
-        .then(() => cargarCobros());
-
-    })
-    .catch(() => alert("Error de conexión"));
+  abrirWhatsApp(entregaId);
 }
-
 
 /**
  * =========================
@@ -137,6 +86,39 @@ function pagar(id) {
       estado.textContent = "Error de conexión";
     });
 }
+
+function abrirWhatsApp(entregaId) {
+
+  fetch(`${API_BASE}?accion=generarMensajeWhatsApp&id=${entregaId}`)
+    .then(res => res.json())
+    .then(data => {
+
+      if (!data.ok) {
+        alert("No se pudo generar el mensaje de WhatsApp");
+        return;
+      }
+
+      const telefono = data.telefono;     // viene del backend
+      const mensaje = data.mensaje;       // ya armado
+
+      const texto = encodeURIComponent(mensaje);
+
+      const esMovil = /Android|iPhone|iPad/i.test(navigator.userAgent);
+
+      const url = esMovil
+        ? `whatsapp://send?phone=591${telefono}&text=${texto}`
+        : `https://wa.me/591${telefono}?text=${texto}`;
+
+      // 🔥 abre WhatsApp directo (app en móvil)
+      window.location.href = url;
+
+      // 📝 registra aviso
+      fetch(`${API_BASE}?accion=avisarCobro&id=${entregaId}&canal=WHATSAPP`)
+        .then(() => cargarCobros());
+    })
+    .catch(() => alert("Error de conexión"));
+}
+
 
 // 🚀 Inicial
 cargarCobros();
