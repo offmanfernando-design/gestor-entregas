@@ -26,9 +26,16 @@ fetch(`${API_BASE}?accion=listarCobros`)
         <p>Monto: Bs ${c.monto}</p>
         <p>Avisos: ${c.avisos}</p>
 
-        <button onclick="avisar('${c.entrega_id}')">Avisar</button>
-        <button onclick="pagar('${c.entrega_id}')">Marcar pagado</button>
+        <button class="btn-avisar">Avisar</button>
+        <button class="btn-pagar">Marcar pagado</button>
       `;
+
+      // 🔑 CONEXIÓN REAL DE EVENTOS
+      div.querySelector(".btn-avisar")
+        .addEventListener("click", () => avisar(c.entrega_id));
+
+      div.querySelector(".btn-pagar")
+        .addEventListener("click", () => pagar(c.entrega_id));
 
       lista.appendChild(div);
     });
@@ -41,9 +48,6 @@ function avisar(id) {
   alert("Avisar presionado: " + id);
 }
 
-
-
 function pagar(id) {
-  estado.textContent = `Cobro marcado como pagado: ${id}`;
-  // luego lo conectamos al backend
+  alert("Pagar presionado: " + id);
 }
