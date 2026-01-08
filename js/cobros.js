@@ -48,22 +48,19 @@ fetch(`${API_BASE}?accion=listarCobros`)
   });
 
 function avisar(id) {
-  estado.textContent = "Registrando aviso...";
-
-  fetch(`${API_BASE}?accion=avisarCobro&id=${id}`)
+  fetch(`${API_BASE}?accion=avisarCobro&id=${id}&canal=WHATSAPP`)
     .then(res => res.json())
     .then(data => {
       if (data.ok) {
-        estado.textContent = "Aviso registrado";
+        alert("Aviso registrado");
         location.reload();
       } else {
-        estado.textContent = data.mensaje || "Error al registrar aviso";
+        alert("Error al avisar");
       }
     })
-    .catch(() => {
-      estado.textContent = "Error de conexión";
-    });
+    .catch(() => alert("Error de conexión"));
 }
+
 
 
 function pagar(id) {
