@@ -48,8 +48,23 @@ fetch(`${API_BASE}?accion=listarCobros`)
   });
 
 function avisar(id) {
-  alert("Avisar presionado: " + id);
+  estado.textContent = "Registrando aviso...";
+
+  fetch(`${API_BASE}?accion=avisarCobro&id=${id}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.ok) {
+        estado.textContent = "Aviso registrado";
+        location.reload();
+      } else {
+        estado.textContent = data.mensaje || "Error al registrar aviso";
+      }
+    })
+    .catch(() => {
+      estado.textContent = "Error de conexión";
+    });
 }
+
 
 function pagar(id) {
   alert("Pagar presionado: " + id);
