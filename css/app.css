@@ -153,3 +153,72 @@ html, body {
   color: var(--muted);
   margin-top: 2px;
 }
+
+
+/* ---------- TABS COBROS ---------- */
+.tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--fg);
+}
+
+.tab.active {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+/* ---------- LISTA ---------- */
+.list {
+  padding: 8px 16px 32px;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+  background: #fff;
+  animation: viewIn .2s ease;
+}
+
+.card strong {
+  display: block;
+  font-size: 15px;
+}
+
+.card small {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ---------- ACCIONES ---------- */
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.actions button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font-size: 14px;
+}
+
+.actions button.primary {
+  background: var(--fg);
+  color: var(--bg);
+}
+
