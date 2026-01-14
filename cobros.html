@@ -24,6 +24,17 @@
     <button class="tab" onclick="cambiarTab('pagado')">Pagados</button>
   </div>
 
+  <!-- BUSCADOR -->
+<div class="search-box">
+  <input
+    type="search"
+    id="buscadorCobros"
+    placeholder="Buscar por nombre, número o tracking"
+    oninput="aplicarBusqueda()"
+  />
+</div>
+
+
   <!-- LISTA -->
   <div id="listaCobros" class="list"></div>
 
