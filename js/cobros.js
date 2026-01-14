@@ -10,6 +10,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbzbxPWwcJI6XoNlrAA5Qlfx
 /* ===== ESTADO ===== */
 let tabActual = 'pendiente';
 let datos = [];
+let textoBusqueda = '';
 
 /* ===== INIT ===== */
 document.addEventListener('DOMContentLoaded', () => {
@@ -44,22 +45,39 @@ function cargarCobros() {
     });
 }
 
+/* ===== BUSCADOR ===== */
+function aplicarBusqueda() {
+  const input = document.getElementById('buscadorCobros');
+  textoBusqueda = (input.value || '').toLowerCase();
+  render();
+}
+
 /* ===== RENDER ===== */
 function render() {
   const cont = document.getElementById('listaCobros');
   cont.innerHTML = '';
 
   const filtrados = datos.filter(d => {
-    if (tabActual === 'pendiente') {
-      return d.estado === 'Pendiente - No avisado';
-    }
-    if (tabActual === 'avisado') {
-      return d.estado === 'Avisado - Sin pago';
-    }
-    if (tabActual === 'pagado') {
-      return d.estado === 'Pagado';
-    }
-    return false;
+
+    /* --- FILTRO POR TAB --- */
+    const coincideEstado =
+      (tabActual === 'pendiente' && d.estado === 'Pendiente - No avisado') ||
+      (tabActual === 'avisado' && d.estado === 'Avisado - Sin pago') ||
+      (tabActual === 'pagado' && d.estado === 'Pagado');
+
+    if (!coincideEstado) return false;
+
+    /* --- FILTRO POR TEXTO --- */
+    if (!textoBusqueda) return true;
+
+    const texto = `
+      ${d.nombre || ''}
+      ${d.numero || ''}
+      ${d.entrega_id || ''}
+      ${d.tracking || ''}
+    `.toLowerCase();
+
+    return texto.includes(textoBusqueda);
   });
 
   if (filtrados.length === 0) {
