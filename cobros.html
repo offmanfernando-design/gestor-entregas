@@ -2,21 +2,33 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cobros</title>
   <link rel="stylesheet" href="css/app.css" />
 </head>
+
 <body>
 
-  <div class="container">
-    <h2>Cobros pendientes</h2>
+<div class="app view">
 
-    <div id="lista-cobros"></div>
+  <!-- HEADER -->
+  <header class="home-header">
+    <h1>Cobros</h1>
+    <p>Gestión de pagos</p>
+  </header>
 
-    <p id="estado"></p>
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="cambiarTab('pendiente')">Por cobrar</button>
+    <button class="tab" onclick="cambiarTab('avisado')">Avisados</button>
+    <button class="tab" onclick="cambiarTab('pagado')">Pagados</button>
   </div>
 
-  <script src="js/config.js"></script>
-  <script src="js/cobros.js"></script>
+  <!-- LISTA -->
+  <div id="listaCobros" class="list"></div>
+
+</div>
+
+<script src="js/cobros.js"></script>
 </body>
 </html>
