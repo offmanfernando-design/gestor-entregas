@@ -1,13 +1,10 @@
 /* =========================================================
    COBROS UI – FRONTEND
-   Archivo: js/cobros.js
    Bolivia Imports – Sistema Logístico
    ========================================================= */
 
-/* ===== URL OFICIAL DE APPS SCRIPT ===== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbzbxPWwcJI6XoNlrAA5QlfxNaAg1l78SMB90v2syYOaEIyLpI8j4_ttsyFH3lqF4SfO/exec';
 
-/* ===== ESTADO ===== */
 let tabActual = 'pendiente';
 let datos = [];
 let textoBusqueda = '';
@@ -17,32 +14,41 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarCobros();
 });
 
-/* ===== TABS ===== */
-function cambiarTab(tab) {
+/* ===== NORMALIZAR ESTADO (CLAVE) ===== */
+function normalizarEstado(d) {
+  const raw = (d.estado || d.estado_cobro || '').toString().toLowerCase();
+
+  if (raw.includes('pag')) return 'pagado';
+  if (raw.includes('avi')) return 'avisado';
+
+  return 'pendiente';
+}
+
+/* ===== CAMBIO DE TAB ===== */
+function cambiarTab(tab, btn) {
   tabActual = tab;
 
   document.querySelectorAll('.tab')
     .forEach(b => b.classList.remove('active'));
 
-  event.target.classList.add('active');
+  if (btn) btn.classList.add('active');
+
   render();
 }
 
-/* ===== FETCH LISTA ===== */
+/* ===== FETCH ===== */
 function cargarCobros() {
   fetch(`${API_URL}?accion=listarCobros`)
-    .then(res => res.json())
-    .then(json => {
-      if (!json.ok) {
-        alert(json.mensaje || 'Error al listar cobros');
+    .then(r => r.json())
+    .then(res => {
+      if (!res.ok) {
+        alert(res.mensaje || 'Error al cargar cobros');
         return;
       }
-      datos = json.cobros || [];
+      datos = res.cobros || [];
       render();
     })
-    .catch(() => {
-      alert('No se pudo conectar con el servidor');
-    });
+    .catch(() => alert('Error de conexión con servidor'));
 }
 
 /* ===== BUSCADOR ===== */
@@ -53,24 +59,26 @@ function aplicarBusqueda() {
 }
 
 /* ===== RENDER ===== */
-const filtrados = datos.filter(d => {
+function render() {
+  const cont = document.getElementById('listaCobros');
+  cont.innerHTML = '';
 
-  const estado = normalizarEstado(d.estado);
+  const filtrados = datos.filter(d => {
+    // 1. estado
+    if (normalizarEstado(d) !== tabActual) return false;
 
-  if (estado !== tabActual) return false;
+    // 2. búsqueda
+    if (!textoBusqueda) return true;
 
-  if (!textoBusqueda) return true;
+    const texto = `
+      ${d.nombre || ''}
+      ${d.numero || ''}
+      ${d.entrega_id || ''}
+      ${d.tracking || ''}
+    `.toLowerCase();
 
-  const texto = `
-    ${d.nombre || ''}
-    ${d.numero || ''}
-    ${d.entrega_id || ''}
-    ${d.tracking || ''}
-  `.toLowerCase();
-
-  return texto.includes(textoBusqueda);
-});
-
+    return texto.includes(textoBusqueda);
+  });
 
   if (filtrados.length === 0) {
     cont.innerHTML = `<p style="color:#6b6b6b">Sin resultados</p>`;
@@ -80,7 +88,7 @@ const filtrados = datos.filter(d => {
   filtrados.forEach(d => {
     cont.innerHTML += `
       <div class="card">
-        <strong>${d.nombre}</strong>
+        <strong>${d.nombre || 'Sin nombre'}</strong>
         <small>Monto: ${Number(d.monto || 0).toFixed(2)} Bs</small>
         ${renderAcciones(d)}
       </div>
@@ -88,7 +96,7 @@ const filtrados = datos.filter(d => {
   });
 }
 
-/* ===== ACCIONES POR ESTADO ===== */
+/* ===== ACCIONES ===== */
 function renderAcciones(d) {
 
   if (tabActual === 'pendiente') {
@@ -118,50 +126,19 @@ function renderAcciones(d) {
 }
 
 /* ===== AVISAR ===== */
-function avisar(entregaId) {
+function avisar(id) {
   if (!confirm('¿Enviar aviso de cobro?')) return;
 
-  fetch(`${API_URL}?accion=avisarCobro&id=${encodeURIComponent(entregaId)}`)
-    .then(res => res.json())
-    .then(json => {
-      if (!json.ok) {
-        alert(json.mensaje || 'Error al avisar');
-        return;
-      }
-      cargarCobros();
-    })
-    .catch(() => {
-      alert('Error de conexión al avisar');
-    });
+  fetch(`${API_URL}?accion=avisarCobro&id=${encodeURIComponent(id)}`)
+    .then(() => cargarCobros())
+    .catch(() => alert('Error al avisar'));
 }
 
 /* ===== PAGAR ===== */
-function pagar(entregaId) {
+function pagar(id) {
   if (!confirm('¿Confirmar pago recibido?')) return;
 
-  fetch(`${API_URL}?accion=pagarCobro&id=${encodeURIComponent(entregaId)}&metodo=EFECTIVO`)
-    .then(res => res.json())
-    .then(json => {
-      if (!json.ok) {
-        alert(json.mensaje || 'Error al registrar pago');
-        return;
-      }
-      cargarCobros();
-    })
-    .catch(() => {
-      alert('Error de conexión al pagar');
-    });
+  fetch(`${API_URL}?accion=pagarCobro&id=${encodeURIComponent(id)}&metodo=EFECTIVO`)
+    .then(() => cargarCobros())
+    .catch(() => alert('Error al pagar'));
 }
-
-
-function normalizarEstado(estado) {
-  if (!estado) return 'pendiente';
-
-  const e = estado.toString().toLowerCase();
-
-  if (e.includes('pagado') || e.includes('cobrado')) return 'pagado';
-  if (e.includes('avisado')) return 'avisado';
-
-  return 'pendiente';
-}
-
