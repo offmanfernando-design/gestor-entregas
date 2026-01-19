@@ -1,18 +1,18 @@
 /* =========================================================
-   COBROS UI – FRONTEND (ROBUSTO V1)
+   COBROS UI – FRONTEND (OPTIMIZADO V2)
    Bolivia Imports – Sistema Logístico
    ========================================================= */
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzbxPWwcJI6XoNlrAA5QlfxNaAg1l78SMB90v2syYOaEIyLpI8j4_ttsyFH3lqF4SfO/exec';
 
 let tabActual = 'pendiente';
-let datos = [];
+let datos = [];            // estado en memoria
 let textoBusqueda = '';
 
 document.addEventListener('DOMContentLoaded', cargarCobros);
 
 /* ===============================
-   CARGA BACKEND
+   CARGA INICIAL (UNA SOLA VEZ)
 ================================ */
 function cargarCobros() {
   fetch(`${API_URL}?accion=listarCobros`)
@@ -29,7 +29,7 @@ function cargarCobros() {
 }
 
 /* ===============================
-   CAMBIO DE TAB
+   CAMBIO DE TAB (SIN BACKEND)
 ================================ */
 function cambiarTab(tab, btn) {
   tabActual = tab;
@@ -39,11 +39,11 @@ function cambiarTab(tab, btn) {
 
   if (btn) btn.classList.add('active');
 
-  render();
+  render(); // solo frontend
 }
 
 /* ===============================
-   BUSCADOR
+   BUSCADOR (FRONTEND PURO)
 ================================ */
 function aplicarBusqueda() {
   const input = document.getElementById('buscadorCobros');
@@ -52,7 +52,7 @@ function aplicarBusqueda() {
 }
 
 /* ===============================
-   DETERMINAR ESTADO REAL
+   ESTADO REAL DE COBRO
 ================================ */
 function estadoCobro(entrega) {
   const cobrado = Number(entrega.monto_cobrado_bs || 0);
@@ -65,7 +65,7 @@ function estadoCobro(entrega) {
 }
 
 /* ===============================
-   RENDER
+   RENDER PRINCIPAL
 ================================ */
 function render() {
   const cont = document.getElementById('listaCobros');
@@ -73,10 +73,10 @@ function render() {
 
   const filtrados = datos.filter(d => {
 
-    /* Estado */
+    // filtro por estado
     if (estadoCobro(d) !== tabActual) return false;
 
-    /* Búsqueda */
+    // filtro por búsqueda
     if (!textoBusqueda) return true;
 
     const tracking = (d.tracking || '').toString();
@@ -110,7 +110,7 @@ function render() {
 }
 
 /* ===============================
-   ACCIONES
+   ACCIONES POR ESTADO
 ================================ */
 function acciones(d) {
 
@@ -128,7 +128,9 @@ function acciones(d) {
     return `
       <div class="actions">
         <button onclick="avisar('${d.entrega_id}')">Reavisar</button>
-        <button class="primary" onclick="pagar('${d.entrega_id}')">Pagar</button>
+        <button class="primary" onclick="pagar('${d.entrega_id}')">
+          Confirmar pago
+        </button>
       </div>
     `;
   }
@@ -137,23 +139,51 @@ function acciones(d) {
 }
 
 /* ===============================
-   AVISAR
+   AVISAR (BACKEND + UPDATE LOCAL)
 ================================ */
 function avisar(id) {
   if (!confirm('¿Enviar aviso de cobro?')) return;
 
   fetch(`${API_URL}?accion=avisarCobro&id=${encodeURIComponent(id)}`)
-    .then(() => cargarCobros())
+    .then(r => r.json())
+    .then(res => {
+      if (!res.ok) {
+        alert(res.mensaje || 'Error al avisar');
+        return;
+      }
+
+      // actualizar SOLO en memoria
+      const item = datos.find(d => d.entrega_id === id);
+      if (item) {
+        item.cantidad_avisos = Number(item.cantidad_avisos || 0) + 1;
+      }
+
+      render();
+    })
     .catch(() => alert('Error al avisar'));
 }
 
 /* ===============================
-   PAGAR
+   PAGAR (BACKEND + UPDATE LOCAL)
 ================================ */
 function pagar(id) {
   if (!confirm('¿Confirmar pago recibido?')) return;
 
   fetch(`${API_URL}?accion=pagarCobro&id=${encodeURIComponent(id)}&metodo=EFECTIVO`)
-    .then(() => cargarCobros())
+    .then(r => r.json())
+    .then(res => {
+      if (!res.ok) {
+        alert(res.mensaje || 'Error al pagar');
+        return;
+      }
+
+      // actualizar SOLO en memoria
+      const item = datos.find(d => d.entrega_id === id);
+      if (item) {
+        item.monto_cobrado_bs = Number(item.cobro_total_bs || 0);
+      }
+
+      render();
+    })
     .catch(() => alert('Error al pagar'));
 }
