@@ -35,7 +35,11 @@ function cambiarTab(tab, btn) {
 ================================ */
 function aplicarBusqueda() {
   const input = document.getElementById('buscadorCobros');
+  const fechaInput = document.getElementById('filtroFecha');
+
   textoBusqueda = (input.value || '').toLowerCase();
+  fechaFiltro = fechaInput ? fechaInput.value : '';
+
   render();
 }
 
@@ -73,32 +77,39 @@ async function cargarCobros() {
 /* ===============================
    RENDER
 ================================ */
-function render() {
-  const cont = document.getElementById('listaCobros');
-  cont.innerHTML = '';
+const filtrados = datos.filter(c => {
 
-  const filtrados = datos.filter(c => {
-    if (!textoBusqueda) return true;
+  /* ======================
+     FILTRO POR TEXTO
+     (nombre, teléfono, últimos 4 tracking)
+  ====================== */
+  if (textoBusqueda) {
+    const ultimosTrackings = c.entregas
+      .map(e => (e.tracking || '').slice(-4))
+      .join(' ');
 
     const texto = `
       ${c.cliente_nombre}
       ${c.cliente_telefono}
-      ${c.entregas.map(e => e.tracking).join(' ')}
+      ${ultimosTrackings}
     `.toLowerCase();
 
-    return texto.includes(textoBusqueda);
-  });
-
-  if (!filtrados.length) {
-    cont.innerHTML = '<p style="color:#777">Sin resultados</p>';
-    return;
+    if (!texto.includes(textoBusqueda)) return false;
   }
 
-  filtrados.forEach(c => {
-    const div = document.createElement('div');
-    div.className = 'card';
+  /* ======================
+     FILTRO POR FECHA
+     (YYYY-MM-DD o YYYY-MM)
+  ====================== */
+  if (fechaFiltro) {
+    const fecha = (c.fecha_ultima_actualizacion || '').slice(0, 10);
 
-    let accionesHTML = '';
+    // permite filtrar por día exacto o por mes (YYYY-MM)
+    if (!fecha.startsWith(fechaFiltro)) return false;
+  }
+
+  return true;
+});
 
     // POR COBRAR → solo avisar
     if (tabActual === 'pendiente') {
