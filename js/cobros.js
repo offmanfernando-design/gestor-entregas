@@ -1,7 +1,7 @@
 /* ===============================
    CONFIG
 ================================ */
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'https://uranitic-unpennied-dominique.ngrok-free.dev/api';
 
 let tabActual = 'pendiente';
 let textoBusqueda = '';
