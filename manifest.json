@@ -1,10 +1,11 @@
 {
-  "name": "Gestor de Entregas - Bolivia Imports",
-  "short_name": "Entregas BI",
-  "start_url": "./",
+  "name": "Bolivia Imports",
+  "short_name": "Bolivia Imports",
+  "start_url": "/bolivia-imports-frontend/index.html",
+  "scope": "/bolivia-imports-frontend/",
   "display": "standalone",
-  "background_color": "#f2f5fb",
-  "theme_color": "#2f6fed",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "orientation": "portrait",
   "icons": [
     {
