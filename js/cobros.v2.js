@@ -5,129 +5,86 @@ let tabActual = 'pendiente';
 let textoBusqueda = '';
 let datos = [];
 
-/* ===============================
-   INIT
-================================ */
-document.addEventListener('DOMContentLoaded', () => {
-  cargarCobros();
-});
+document.addEventListener('DOMContentLoaded', cargarCobros);
 
-/* ===============================
-   TABS
-================================ */
 window.cambiarTab = function (tab, btn) {
   tabActual = tab;
-
-  document.querySelectorAll('.tab')
-    .forEach(b => b.classList.remove('active'));
-
-  if (btn) btn.classList.add('active');
-
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
   cargarCobros();
 };
 
-/* ===============================
-   BUSCADOR
-================================ */
 window.aplicarBusqueda = function () {
-  const input = document.getElementById('buscadorCobros');
-  const fechaInput = document.getElementById('filtroFecha');
-
-  textoBusqueda = (input.value || '').toLowerCase();
-  fechaFiltro = fechaInput ? fechaInput.value : '';
-
+  textoBusqueda = document.getElementById('buscadorCobros').value.toLowerCase();
+  fechaFiltro = document.getElementById('filtroFecha').value;
   render();
 };
 
-/* ===============================
-   CARGAR COBROS
-================================ */
 async function cargarCobros() {
   const cont = document.getElementById('listaCobros');
   cont.innerHTML = 'Cargando...';
 
-  try {
-    const res = await fetch(
-      `${API_BASE_URL}/api/cobros?estado_cobro=${tabActual}`
-    );
-
-    datos = await res.json();
-    render();
-  } catch (e) {
-    cont.innerHTML = 'Error al cargar cobros';
-    console.error(e);
-  }
+  const res = await fetch(`${API_BASE_URL}/api/cobros?estado_cobro=${tabActual}`);
+  datos = await res.json();
+  render();
 }
 
-/* ===============================
-   RENDER
-================================ */
 function render() {
   const cont = document.getElementById('listaCobros');
   cont.innerHTML = '';
 
-  const filtrados = datos.filter(c => {
-    if (textoBusqueda) {
-      const texto = `
-        ${c.cliente_nombre}
-        ${c.cliente_telefono}
-      `.toLowerCase();
-      if (!texto.includes(textoBusqueda)) return false;
-    }
-    return true;
-  });
+  datos
+    .filter(c => {
+      if (textoBusqueda) {
+        const txt = `${c.cliente_nombre} ${c.cliente_telefono}`.toLowerCase();
+        if (!txt.includes(textoBusqueda)) return false;
+      }
+      if (fechaFiltro && !c.fecha_ultima_actualizacion?.startsWith(fechaFiltro)) return false;
+      return true;
+    })
+    .forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'card';
 
-  filtrados.forEach(c => {
-    const div = document.createElement('div');
-    div.className = 'card';
+      let acciones = '';
 
-    let accionesHTML = '';
+      if (tabActual === 'pendiente') {
+        acciones = `<button class="primary" onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}')">Avisar</button>`;
+      }
 
-    if (tabActual === 'pendiente') {
-  accionesHTML = `
-    <button class="primary" onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}')">
-      Avisar
-    </button>
-  `;
+      if (tabActual === 'avisado') {
+        acciones = `
+          <button onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}')">Reavisar</button>
+          <button class="primary" onclick="pagar('${c.cliente_id}')">Confirmar pago</button>
+        `;
+      }
+
+      if (tabActual === 'pagado') {
+        acciones = `<span class="paid">Pago confirmado</span>`;
+      }
+
+      div.innerHTML = `
+        <div class="card-header">
+          <strong>${c.cliente_nombre}</strong>
+          <small>Total: ${c.monto_total_bs} Bs</small>
+        </div>
+        <div class="actions right">
+          ${acciones}
+        </div>
+      `;
+
+      cont.appendChild(div);
+    });
 }
 
-  if (tabActual === 'pagado') {
-  accionesHTML = `
-    <span class="pago-confirmado">
-      Pago confirmado
-    </span>
-  `;
-}
-
-    if (tabActual === 'pagado') {
-      accionesHTML = `<small>Pago confirmado</small>`;
-    }
-
-    div.innerHTML = `
-      <strong>${c.cliente_nombre}</strong>
-      <small>Total: ${c.monto_total_bs} Bs</small>
-      ${accionesHTML}
-    `;
-
-    cont.appendChild(div);
-  });
-}
-
-/* ===============================
-   ACCIONES
-================================ */
 window.avisar = async function (clienteId, telefono) {
-  if (!confirm('¿Enviar aviso de cobro por WhatsApp?')) return;
-
-  // 👉 1. Abrir WhatsApp (ESTO FALTABA)
   if (telefono) {
-    const mensaje = encodeURIComponent(
-      'Hola, te escribimos de Bolivia Imports para informarte que tienes un pago pendiente. Gracias.'
+    const msg = encodeURIComponent(
+      'Hola, te escribimos de Bolivia Imports para recordarte un pago pendiente. Gracias.'
     );
-    window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+    window.open(`https://wa.me/${telefono}?text=${msg}`, '_blank');
   }
 
-  // 👉 2. Marcar como avisado en backend
   await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -138,8 +95,6 @@ window.avisar = async function (clienteId, telefono) {
 };
 
 window.pagar = async function (clienteId) {
-  if (!confirm('¿Confirmar pago recibido?')) return;
-
   await fetch(`${API_BASE_URL}/api/cobros/pagar`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
