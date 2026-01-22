@@ -5,70 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cobros</title>
 
-  <!-- Estilos globales -->
   <link rel="stylesheet" href="css/app.css" />
 </head>
-
 <body>
 
-<!-- CONTENEDOR APP -->
 <div class="app view">
 
-  <!-- HEADER -->
   <header class="home-header">
     <h1>Cobros</h1>
     <p>Gestión de pagos</p>
   </header>
 
-  <!-- TABS DE ESTADO -->
   <div class="tabs">
-    <button
-      class="tab active"
-      onclick="cambiarTab('pendiente', this)">
-      Por cobrar
-    </button>
-
-    <button
-      class="tab"
-      onclick="cambiarTab('avisado', this)">
-      Avisados
-    </button>
-
-    <button
-      class="tab"
-      onclick="cambiarTab('pagado', this)">
-      Pagados
-    </button>
+    <button class="tab active" onclick="cambiarTab('pendiente', this)">Por cobrar</button>
+    <button class="tab" onclick="cambiarTab('avisado', this)">Avisados</button>
+    <button class="tab" onclick="cambiarTab('pagado', this)">Pagados</button>
   </div>
 
-  <!-- BUSCADOR -->
-<div class="search-box search-combo">
-  <input
-    type="search"
-    id="buscadorCobros"
-    placeholder="Buscar nombre, número o tracking"
-    autocomplete="off"
-    oninput="aplicarBusqueda()"
-  />
-
-  <input
-    type="date"
-    id="filtroFecha"
-    onchange="aplicarBusqueda()"
-    title="Filtrar por fecha"
-  />
-</div>
-
-  <!-- LISTADO -->
-  <div id="listaCobros" class="list">
-    <!-- Cards se inyectan aquí -->
+  <!-- BUSCADOR + FECHA -->
+  <div class="search-box combined">
+    <input
+      type="search"
+      id="buscadorCobros"
+      placeholder="Buscar nombre, número o tracking"
+      oninput="aplicarBusqueda()"
+    />
+    <label class="date-icon">
+      📅
+      <input
+        type="date"
+        id="filtroFecha"
+        onchange="aplicarBusqueda()"
+      />
+    </label>
   </div>
+
+  <div id="listaCobros" class="list"></div>
 
 </div>
 
-<!-- SCRIPT -->
 <script type="module" src="js/cobros.v2.js"></script>
-
-
 </body>
 </html>
