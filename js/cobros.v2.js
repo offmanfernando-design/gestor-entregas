@@ -1,27 +1,16 @@
 import API_BASE_URL from './config.js';
-fetch(`${API_BASE_URL}/cobros`)
-
-
-let fechaFiltro = '';
-
-/* ===============================
-   CONFIG
-================================ */
-const API_BASE = 'https://uranitic-unpennied-dominique.ngrok-free.dev/api';
 
 let tabActual = 'pendiente';
 let textoBusqueda = '';
+let fechaFiltro = '';
 let datos = [];
 
-/* ===============================
-   INIT
-================================ */
 document.addEventListener('DOMContentLoaded', () => {
   cargarCobros();
 });
 
 /* ===============================
-   TABS (HTML YA LOS LLAMA)
+   TABS
 ================================ */
 function cambiarTab(tab, btn) {
   tabActual = tab;
@@ -38,11 +27,11 @@ function cambiarTab(tab, btn) {
    BUSCADOR
 ================================ */
 function aplicarBusqueda() {
-  const input = document.getElementById('buscadorCobros');
-  const fechaInput = document.getElementById('filtroFecha');
+  textoBusqueda =
+    (document.getElementById('buscadorCobros').value || '').toLowerCase();
 
-  textoBusqueda = (input.value || '').toLowerCase();
-  fechaFiltro = fechaInput ? fechaInput.value : '';
+  fechaFiltro =
+    document.getElementById('filtroFecha')?.value || '';
 
   render();
 }
@@ -56,22 +45,10 @@ async function cargarCobros() {
 
   try {
     const res = await fetch(
-      `${API_BASE}/cobros?estado_cobro=${tabActual}`,
-      {
-        headers: {
-          'ngrok-skip-browser-warning': 'true'
-        }
-      }
+      `${API_BASE_URL}/api/cobros?estado_cobro=${tabActual}`
     );
 
     datos = await res.json();
-
-    datos.sort((a, b) =>
-      (a.fecha_ultima_actualizacion || '').localeCompare(
-        b.fecha_ultima_actualizacion || ''
-      )
-    );
-
     render();
   } catch (e) {
     cont.innerHTML = 'Error al cargar cobros';
@@ -81,72 +58,66 @@ async function cargarCobros() {
 /* ===============================
    RENDER
 ================================ */
-const filtrados = datos.filter(c => {
+function render() {
+  const cont = document.getElementById('listaCobros');
+  cont.innerHTML = '';
 
-  /* ======================
-     FILTRO POR TEXTO
-     (nombre, teléfono, últimos 4 tracking)
-  ====================== */
-  if (textoBusqueda) {
-    const ultimosTrackings = c.entregas
-      .map(e => (e.tracking || '').slice(-4))
-      .join(' ');
+  const filtrados = datos.filter(c => {
+    if (textoBusqueda) {
+      const ultimos = (c.entregas || [])
+        .map(e => (e.tracking || '').slice(-4))
+        .join(' ');
 
-    const texto = `
-      ${c.cliente_nombre}
-      ${c.cliente_telefono}
-      ${ultimosTrackings}
-    `.toLowerCase();
+      const texto = `
+        ${c.cliente_nombre}
+        ${c.cliente_telefono}
+        ${ultimos}
+      `.toLowerCase();
 
-    if (!texto.includes(textoBusqueda)) return false;
+      if (!texto.includes(textoBusqueda)) return false;
+    }
+
+    if (fechaFiltro) {
+      const fecha = (c.fecha_ultima_actualizacion || '').slice(0, 10);
+      if (!fecha.startsWith(fechaFiltro)) return false;
+    }
+
+    return true;
+  });
+
+  if (!filtrados.length) {
+    cont.innerHTML = '<small>No hay registros</small>';
+    return;
   }
 
-  /* ======================
-     FILTRO POR FECHA
-     (YYYY-MM-DD o YYYY-MM)
-  ====================== */
-  if (fechaFiltro) {
-    const fecha = (c.fecha_ultima_actualizacion || '').slice(0, 10);
+  filtrados.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'card';
 
-    // permite filtrar por día exacto o por mes (YYYY-MM)
-    if (!fecha.startsWith(fechaFiltro)) return false;
-  }
+    let accionesHTML = '';
 
-  return true;
-});
-
-    // POR COBRAR → solo avisar
     if (tabActual === 'pendiente') {
       accionesHTML = `
-        <div class="actions">
-          <button class="primary" onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}')">
-            Avisar
-          </button>
-        </div>
+        <button class="primary"
+          onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}')">
+          Avisar
+        </button>
       `;
     }
 
-    // AVISADOS → reavisar + confirmar pago
     if (tabActual === 'avisado') {
       accionesHTML = `
-        <div class="actions">
-          <button onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}')">
-            Re-avisar
-          </button>
-          <button class="primary" onclick="pagar('${c.cliente_id}')">
-            Confirmar pago
-          </button>
-        </div>
+        <button onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}')">
+          Re-avisar
+        </button>
+        <button class="primary" onclick="pagar('${c.cliente_id}')">
+          Confirmar pago
+        </button>
       `;
     }
 
-    // PAGADOS → sin botones
     if (tabActual === 'pagado') {
-      accionesHTML = `
-        <small style="color:#2e7d32;font-weight:600">
-          Pago confirmado
-        </small>
-      `;
+      accionesHTML = `<small style="color:green">Pago confirmado</small>`;
     }
 
     div.innerHTML = `
@@ -160,21 +131,19 @@ const filtrados = datos.filter(c => {
 }
 
 /* ===============================
-   AVISAR / REAVISAR
+   AVISAR
 ================================ */
 async function avisar(clienteId, telefono) {
-  if (!confirm('¿Enviar aviso de cobro por WhatsApp?')) return;
+  if (!confirm('¿Enviar aviso de cobro?')) return;
 
-  // 1️⃣ abrir WhatsApp
   if (telefono) {
-    const mensaje = encodeURIComponent(
-      'Hola, te escribimos de Bolivia Imports para recordarte que tienes un pago pendiente. Gracias.'
+    const msg = encodeURIComponent(
+      'Hola, te escribimos de Bolivia Imports por tu pago pendiente.'
     );
-    window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+    window.open(`https://wa.me/${telefono}?text=${msg}`, '_blank');
   }
 
-  // 2️⃣ marcar como avisado en backend
-  await fetch(`${API_BASE}/cobros/avisar`, {
+  await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cliente_id: clienteId })
@@ -189,7 +158,7 @@ async function avisar(clienteId, telefono) {
 async function pagar(clienteId) {
   if (!confirm('¿Confirmar pago recibido?')) return;
 
-  await fetch(`${API_BASE}/cobros/pagar`, {
+  await fetch(`${API_BASE_URL}/api/cobros/pagar`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cliente_id: clienteId })
