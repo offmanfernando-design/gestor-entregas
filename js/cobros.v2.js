@@ -2,7 +2,6 @@ import API_BASE_URL from './config.js';
 
 let tabActual = 'pendiente';
 let textoBusqueda = '';
-let fechaFiltro = '';
 let datos = [];
 
 document.addEventListener('DOMContentLoaded', cargarCobros);
@@ -16,7 +15,6 @@ window.cambiarTab = function (tab, btn) {
 
 window.aplicarBusqueda = function () {
   textoBusqueda = document.getElementById('buscadorCobros').value.toLowerCase();
-  fechaFiltro = document.getElementById('filtroFecha').value;
   render();
 };
 
@@ -31,60 +29,41 @@ function render() {
   cont.innerHTML = '';
 
   datos
-    .filter(c => {
-      if (textoBusqueda && !c.cliente_nombre.toLowerCase().includes(textoBusqueda)) {
-        return false;
-      }
-      return true;
-    })
+    .filter(c =>
+      !textoBusqueda ||
+      c.cliente_nombre.toLowerCase().includes(textoBusqueda)
+    )
     .forEach(c => {
       const div = document.createElement('div');
-      div.className = `cobro-card ${tabActual}`;
+      div.className = 'card';
 
-      let bottom = '';
+      let acciones = '';
 
       if (tabActual === 'pendiente') {
-        bottom = `
-          <span class="cobro-estado pendiente">Por cobrar</span>
-          <button class="cobro-action" onclick="avisar('${c.cliente_id}')">
-            Avisar
-          </button>`;
+        acciones = `
+          <div class="actions">
+            <button class="primary" onclick="avisar('${c.cliente_id}')">Avisar</button>
+          </div>`;
       }
 
       if (tabActual === 'avisado') {
-        bottom = `
-          <span class="cobro-estado avisado">Avisado</span>
-          <div>
-            <button class="cobro-action" onclick="avisar('${c.cliente_id}')">
-              Reavisar
-            </button>
-            <button class="cobro-action" onclick="pagar('${c.cliente_id}')">
-              Confirmar
-            </button>
+        acciones = `
+          <div class="actions">
+            <button onclick="avisar('${c.cliente_id}')">Reavisar</button>
+            <button class="primary" onclick="pagar('${c.cliente_id}')">Confirmar pago</button>
           </div>`;
       }
 
       if (tabActual === 'pagado') {
-        bottom = `
-          <span class="cobro-estado pagado">Pagado</span>
-        `;
+        acciones = `<div class="status-ok">Pago confirmado</div>`;
       }
 
       div.innerHTML = `
-        <div class="cobro-top">
-          <div class="cobro-cliente">
-            <strong>${c.cliente_nombre}</strong>
-            <span class="cobro-codigo">${c.cliente_id}</span>
-          </div>
-
-          <div class="cobro-monto">
-            ${c.monto_total_bs} Bs
-          </div>
+        <div class="card-header">
+          <strong>${c.cliente_nombre}</strong>
+          <small>${c.monto_total_bs} Bs</small>
         </div>
-
-        <div class="cobro-bottom">
-          ${bottom}
-        </div>
+        ${acciones}
       `;
 
       cont.appendChild(div);
