@@ -56,7 +56,6 @@ function render() {
 
       let bottom = '';
 
-      // PENDIENTE
       if (tabActual === 'pendiente') {
         bottom = `
           <button class="cobro-action primary"
@@ -65,7 +64,6 @@ function render() {
           </button>`;
       }
 
-      // AVISADO
       if (tabActual === 'avisado') {
         const veces = c.veces_avisado || 1;
         bottom = `
@@ -76,7 +74,6 @@ function render() {
           </button>`;
       }
 
-      // PAGADO
       if (tabActual === 'pagado') {
         bottom = `<span class="cobro-estado pagado">Pago confirmado</span>`;
       }
@@ -89,10 +86,7 @@ function render() {
           </div>
           <div class="cobro-monto">${c.monto_total_bs} Bs</div>
         </div>
-
-        <div class="cobro-bottom">
-          ${bottom}
-        </div>
+        <div class="cobro-bottom">${bottom}</div>
       `;
 
       cont.appendChild(div);
@@ -108,9 +102,12 @@ function generarMensajeWhatsApp(c) {
     p.cobrar_bs && Number(p.cobrar_bs) > 0
   );
 
+  const departamento = (c.departamento_destino || '').toLowerCase().trim();
+  const esSantaCruz = departamento.includes('santa cruz');
+
   let mensaje = `Hola ${c.cliente_nombre}\n\n`;
 
-  mensaje += c.departamento_destino === 'Santa Cruz'
+  mensaje += esSantaCruz
     ? 'Tu pedido llegó a nuestra oficina.\n\n'
     : 'Tu pedido ya se encuentra disponible para envío.\n\n';
 
@@ -128,7 +125,7 @@ function generarMensajeWhatsApp(c) {
 
   mensaje += 'Pago: QR o efectivo (solo Bs)\n\n';
 
-  if (c.departamento_destino === 'Santa Cruz') {
+  if (esSantaCruz) {
     mensaje +=
       'Horario: 09:30 a 12:00 y 14:30 a 18:00\n' +
       'Ubicación: https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n';
