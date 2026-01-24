@@ -5,6 +5,13 @@
 body {
   background: #fff0f0;
 }
+.tabs {
+  border: 2px solid red;
+}
+
+.search-box {
+  border: 2px solid blue;
+}
 
 .list {
   padding: 0 16px 12px;
