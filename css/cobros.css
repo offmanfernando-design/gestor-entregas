@@ -21,70 +21,6 @@
   margin-top: 6px; /* conecta título + subtítulo */
 }
 
-
-/* ========================= */
-/* COBROS – LISTA / TARJETAS */
-/* (aplicará cuando ajustemos */
-/* las clases reales)        */
-/* ========================= */
-
-.list {
-  padding: 0 16px 12px;
-}
-
-.card {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 16px;
-  margin-bottom: 12px;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-header strong {
-  font-size: 16px;
-}
-
-.card-header small {
-  font-size: 14px;
-  color: var(--muted);
-  font-weight: 500;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.actions button {
-  border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 14px;
-  border: 1px solid var(--border);
-  background: #f5f5f5;
-}
-
-.actions .primary {
-  background: var(--fg);
-  color: #fff;
-  border: none;
-}
-
-.status-ok {
-  margin-top: 14px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--success);
-}
-
-
 /* ========================= */
 /* COBROS – TABS             */
 /* ========================= */
@@ -112,7 +48,6 @@
   color: #fff;
   border-color: var(--fg);
 }
-
 
 /* ========================= */
 /* COBROS – BUSCADOR         */
