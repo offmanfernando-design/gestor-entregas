@@ -3,7 +3,7 @@
 /* Estilos SOLO de cobros    */
 /* ========================= */
 
-/*.list {
+.list {
   padding: 0 16px 12px;
 }
 
@@ -58,7 +58,6 @@
   font-weight: 600;
   color: var(--success);
 }
-/*
 
 /* ========================= */
 /* COBROS – TABS             */
