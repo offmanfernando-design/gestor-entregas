@@ -43,27 +43,29 @@ function render() {
 
       let bottom = '';
 
+      // PENDIENTE
       if (tabActual === 'pendiente') {
         bottom = `
-          <span class="cobro-estado pendiente">Por cobrar</span>
-          <button class="cobro-action" onclick="avisar('${c.cliente_id}')">
+          <button class="cobro-action primary" onclick="avisar('${c.cliente_id}')">
             Avisar
           </button>`;
       }
 
+      // AVISADO
       if (tabActual === 'avisado') {
         bottom = `
           <span class="cobro-estado avisado">Avisado</span>
-          <div>
+          <div class="cobro-actions">
             <button class="cobro-action" onclick="avisar('${c.cliente_id}')">
               Reavisar
             </button>
-            <button class="cobro-action" onclick="pagar('${c.cliente_id}')">
-              Confirmar
+            <button class="cobro-action primary" onclick="pagar('${c.cliente_id}')">
+              Confirmar pago
             </button>
           </div>`;
       }
 
+      // PAGADO
       if (tabActual === 'pagado') {
         bottom = `
           <span class="cobro-estado pagado">Pagado</span>
