@@ -2,6 +2,9 @@
 /* MODULO: COBROS            */
 /* Estilos SOLO de cobros    */
 /* ========================= */
+body {
+  background: #fff0f0;
+}
 
 .list {
   padding: 0 16px 12px;
