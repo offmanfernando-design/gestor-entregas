@@ -1,81 +1,97 @@
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta name="theme-color" content="#ffffff">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bolivia Imports</title>
 
-  <link rel="stylesheet" href="./css/app.css" />
+  <!-- PWA -->
   <link rel="manifest" href="./manifest.json" />
-  <meta name="theme-color" content="#111111" />
+  <meta name="theme-color" content="#ffffff" />
+
+  <!-- ICONOS -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded"
+    rel="stylesheet"
+  />
+
+  <!-- ESTILOS -->
+  <link rel="stylesheet" href="./css/app.css" />
 </head>
 <body>
 
-<!-- SPLASH -->
-<div id="splash">
-  <img src="LOGO_EDITABLE_oficial.png" alt="Bolivia Imports">
-</div>
-
-<!-- APP -->
-<div class="app view">
-
-  <!-- HEADER -->
-  <header class="home-header">
-
-  <!-- TOGGLE MODO OSCURO -->
- <button id="themeToggle" class="theme-toggle">
-  <span class="material-symbols-rounded">dark_mode</span>
-</button>
-
-  <img src="LOGO_EDITABLE_oficial.png" alt="Bolivia Imports" class="home-logo">
-  <p class="subtitle">Sistema logístico interno</p>
-</header>
-
-  <!-- MENU -->
-  <main class="menu">
-
-  <div class="menu-item" onclick="location.href='confirmar.html'">
-    <div class="menu-icon">
-      <span class="material-symbols-rounded">inventory_2</span>
-    </div>
-    <div>
-      <strong>Confirmar entrega</strong>
-      <small>Escanear QR o ingresar código</small>
-    </div>
+  <!-- SPLASH -->
+  <div id="splash">
+    <img src="LOGO_EDITABLE_oficial.png" alt="Bolivia Imports">
   </div>
 
-  <div class="menu-item" onclick="location.href='cobros.html'">
-    <div class="menu-icon">
-      <span class="material-symbols-rounded">payments</span>
-    </div>
-    <div>
-      <strong>Cobros</strong>
-      <small>Pagos y avisos</small>
-    </div>
+  <!-- APP -->
+  <div class="app view">
+
+    <!-- HEADER -->
+    <header class="home-header">
+
+      <!-- TOGGLE TEMA -->
+      <button id="themeToggle" class="theme-toggle" aria-label="Cambiar tema">
+        <span class="material-symbols-rounded">dark_mode</span>
+      </button>
+
+      <!-- LOGO DINÁMICO -->
+      <img
+        id="mainLogo"
+        class="home-logo"
+        src="LOGO_EDITABLE_oficial.png"
+        data-logo-light="LOGO_EDITABLE_oficial.png"
+        data-logo-dark="LOGO_EDITABLE_oficial_white.png"
+        alt="Bolivia Imports"
+      >
+
+      <p class="subtitle">Sistema logístico interno</p>
+    </header>
+
+    <!-- MENU -->
+    <main class="menu">
+
+      <div class="menu-item" onclick="location.href='confirmar.html'">
+        <div class="menu-icon">
+          <span class="material-symbols-rounded">inventory_2</span>
+        </div>
+        <div>
+          <strong>Confirmar entrega</strong>
+          <small>Escanear QR o ingresar código</small>
+        </div>
+      </div>
+
+      <div class="menu-item" onclick="location.href='cobros.html'">
+        <div class="menu-icon">
+          <span class="material-symbols-rounded">payments</span>
+        </div>
+        <div>
+          <strong>Cobros</strong>
+          <small>Pagos y avisos</small>
+        </div>
+      </div>
+
+      <div class="menu-item" onclick="location.href='auditoria.html'">
+        <div class="menu-icon">
+          <span class="material-symbols-rounded">fact_check</span>
+        </div>
+        <div>
+          <strong>Auditoría</strong>
+          <small>Historial de acciones</small>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      © Bolivia Imports · v1.1 · by Felipe Antelo
+    </footer>
+
   </div>
 
-  <div class="menu-item" onclick="location.href='auditoria.html'">
-    <div class="menu-icon">
-      <span class="material-symbols-rounded">fact_check</span>
-    </div>
-    <div>
-      <strong>Auditoría</strong>
-      <small>Historial de acciones</small>
-    </div>
-  </div>
-
-</main>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    © Bolivia Imports · v1.1 · by Felipe Antelo
-  </footer>
-
-</div>
-
-<script src="./js/theme.js"></script>
+  <!-- JS -->
+  <script src="./js/theme.js"></script>
 </body>
 </html>
