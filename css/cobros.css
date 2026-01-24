@@ -96,10 +96,19 @@
   padding: 14px 16px;
   margin: 0 16px 12px;
   animation: enter 0.16s ease-out;
+  transition:
+    height 0.16s ease,
+    margin 0.16s ease,
+    padding 0.16s ease;
 }
 
 .cobro-card.leaving {
-  animation: leave 0.14s ease-in forwards;
+  opacity: 0;
+  transform: translateY(-6px);
+  height: 0;
+  margin: 0 16px;
+  padding: 0 16px;
+  overflow: hidden;
 }
 
 @keyframes enter {
@@ -107,19 +116,23 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes leave {
-  to { opacity: 0; transform: translateY(-6px); }
-}
+/* ========================= */
+/* TOP CARD                  */
+/* ========================= */
 
 .cobro-top {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
   gap: 12px;
+  align-items: start;
 }
 
 .cobro-cliente strong {
+  display: block;
   font-size: 15px;
   font-weight: 600;
+  line-height: 1.25;
+  word-break: break-word;
 }
 
 .cobro-codigo {
@@ -130,6 +143,7 @@
 .cobro-monto {
   font-size: 18px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 /* ========================= */
@@ -177,25 +191,3 @@
   transform: scale(0.96);
   opacity: 0.85;
 }
-
-.cobro-top {
-  align-items: flex-start;
-}
-
-.cobro-cliente strong {
-  display: block;
-  line-height: 1.2;
-  word-break: break-word;
-  max-width: 70%;
-}
-
-.cobro-card.leaving {
-  opacity: 0;
-  transform: translateY(-6px);
-  height: 0;
-  margin: 0 16px;
-  padding: 0 16px;
-  overflow: hidden;
-  transition: all 0.16s ease;
-}
-
