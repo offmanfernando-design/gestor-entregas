@@ -16,7 +16,7 @@
 }
 
 /* ========================= */
-/* MODO OSCURO               */
+/* MODO OSCURO (AMOLED)      */
 /* ========================= */
 
 html[data-theme="dark"] {
@@ -29,6 +29,7 @@ html[data-theme="dark"] {
   --muted: #9a9a9a;
   --success: #6fdc8c;
 }
+
 /* ========================= */
 /* RESET / BASE              */
 /* ========================= */
@@ -52,6 +53,8 @@ body {
 
   display: flex;
   justify-content: center;
+
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* ========================= */
@@ -97,6 +100,7 @@ body {
 /* ========================= */
 
 .home-header {
+  position: relative; /* CLAVE para el toggle */
   text-align: center;
   padding: 64px 16px 40px;
 }
@@ -130,7 +134,7 @@ body {
   border-radius: 18px;
   margin-bottom: 14px;
   background: var(--card);
-  transition: transform .15s ease, box-shadow .15s ease;
+  transition: transform .15s ease, box-shadow .15s ease, background-color .25s ease;
 }
 
 .menu-item:active {
@@ -186,8 +190,11 @@ body {
 
   background: none;
   border: none;
-  font-size: 18px;
+  color: var(--fg);
   cursor: pointer;
+
+  padding: 6px;
+  border-radius: 50%;
 
   opacity: 0.6;
   transition: opacity 0.2s ease, transform 0.1s ease;
@@ -201,33 +208,6 @@ body {
   transform: scale(0.9);
 }
 
-/* TARJETAS – THEME AWARE */
-.menu-item,
-.cobro-card {
-  background: var(--card);
-  border-color: var(--border);
-}
-
-/* THEME TOGGLE */
-.theme-toggle {
-  position: absolute;
-  top: 18px;
-  right: 16px;
-
-  background: none;
-  border: none;
-  color: var(--fg);
-  cursor: pointer;
-
-  padding: 6px;
-  border-radius: 50%;
-}
-
 .theme-toggle span {
   font-size: 22px;
 }
-
-.theme-toggle:active {
-  transform: scale(0.92);
-}
-
