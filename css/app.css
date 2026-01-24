@@ -200,3 +200,11 @@ body {
 .theme-toggle:active {
   transform: scale(0.9);
 }
+
+/* TARJETAS – THEME AWARE */
+.menu-item,
+.cobro-card {
+  background: var(--card);
+  border-color: var(--border);
+}
+
