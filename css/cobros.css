@@ -3,6 +3,31 @@
 /* Estilos SOLO de cobros    */
 /* ========================= */
 
+
+/* ========================= */
+/* COBROS – HEADER           */
+/* ========================= */
+
+.home-header {
+  padding-bottom: 24px; /* menos aire editorial */
+}
+
+.home-header h1 {
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.home-header p {
+  margin-top: 6px; /* conecta título + subtítulo */
+}
+
+
+/* ========================= */
+/* COBROS – LISTA / TARJETAS */
+/* (aplicará cuando ajustemos */
+/* las clases reales)        */
+/* ========================= */
+
 .list {
   padding: 0 16px 12px;
 }
@@ -59,6 +84,7 @@
   color: var(--success);
 }
 
+
 /* ========================= */
 /* COBROS – TABS             */
 /* ========================= */
@@ -67,6 +93,7 @@
   display: flex;
   gap: 8px;
   padding: 0 16px;
+  margin-top: 4px;       /* conecta visualmente con header */
   margin-bottom: 12px;
 }
 
@@ -85,6 +112,7 @@
   color: #fff;
   border-color: var(--fg);
 }
+
 
 /* ========================= */
 /* COBROS – BUSCADOR         */
@@ -110,4 +138,3 @@
   border-radius: 12px;
   border: 1px solid var(--border);
 }
-
