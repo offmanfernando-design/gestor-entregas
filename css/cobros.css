@@ -210,3 +210,49 @@
   }
 }
 
+/* ========================= */
+/* COBROS – ENFASIS MONTO    */
+/* ========================= */
+
+.cobro-monto {
+  animation: monto-enter 0.14s ease-out;
+}
+
+@keyframes monto-enter {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ========================= */
+/* COBROS – ESTADOS VISUALES */
+/* ========================= */
+
+/* Pendiente */
+.cobro-card.pendiente {
+  background: #ffffff;
+}
+
+/* Avisado */
+.cobro-card.avisado {
+  background: #fffaf3; /* ámbar muy suave */
+}
+
+/* Pagado */
+.cobro-card.pagado {
+  background: #f7fbf8; /* verde casi blanco */
+}
+
+/* Estado Pagado – cierre visual */
+.cobro-estado.pagado {
+  background: rgba(46, 125, 50, 0.08);
+  color: var(--success);
+  font-weight: 600;
+}
+
+
