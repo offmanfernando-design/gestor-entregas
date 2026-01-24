@@ -2,18 +2,8 @@
 /* MODULO: COBROS            */
 /* Estilos SOLO de cobros    */
 /* ========================= */
-body {
-  background: #fff0f0;
-}
-.tabs {
-  border: 2px solid red;
-}
 
-.search-box {
-  border: 2px solid blue;
-}
-
-.list {
+/*.list {
   padding: 0 16px 12px;
 }
 
@@ -68,6 +58,7 @@ body {
   font-weight: 600;
   color: var(--success);
 }
+/*
 
 /* ========================= */
 /* COBROS – TABS             */
