@@ -1,42 +1,41 @@
 (function () {
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
+  updateMetaThemeColor(savedTheme);
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById('themeToggle');
   const logo = document.getElementById('mainLogo');
 
-  // Ajustar logo al cargar
-  updateLogo();
-
   if (!btn) return;
 
   btn.addEventListener('click', () => {
-    const current = document.documentElement.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const nextTheme = isDark ? 'light' : 'dark';
 
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    localStorage.setItem('theme', nextTheme);
 
     btn.querySelector('span').textContent =
-      next === 'dark' ? 'light_mode' : 'dark_mode';
+      nextTheme === 'dark' ? 'light_mode' : 'dark_mode';
 
-    updateLogo();
+    if (logo) {
+      logo.src = nextTheme === 'dark'
+        ? 'LOGO_EDITABLE_oficial_white.png'
+        : 'LOGO_EDITABLE_oficial.png';
+    }
+
+    updateMetaThemeColor(nextTheme);
   });
-
-  function updateLogo() {
-    if (!logo) return;
-
-    const theme = document.documentElement.getAttribute('data-theme');
-    const lightSrc = logo.getAttribute('data-logo-light');
-    const darkSrc = logo.getAttribute('data-logo-dark');
-
-    logo.style.opacity = '0';
-
-    setTimeout(() => {
-      logo.src = theme === 'dark' ? darkSrc : lightSrc;
-      logo.style.opacity = '1';
-    }, 120);
-  }
 });
+
+function updateMetaThemeColor(theme) {
+  let meta = document.querySelector('meta[name="theme-color"]');
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.name = 'theme-color';
+    document.head.appendChild(meta);
+  }
+  meta.content = theme === 'dark' ? '#000000' : '#ffffff';
+}
