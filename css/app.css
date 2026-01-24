@@ -20,18 +20,15 @@
 /* ========================= */
 
 html[data-theme="dark"] {
-  --bg: #0f0f10;
+  --bg: #000000;
   --fg: #f5f5f5;
 
-  --card: #1a1a1c;
-  --border: #2a2a2d;
+  --card: #121212;
+  --border: #1f1f1f;
 
   --muted: #9a9a9a;
-  --input-bg: #1a1a1c;
-
   --success: #6fdc8c;
 }
-
 /* ========================= */
 /* RESET / BASE              */
 /* ========================= */
