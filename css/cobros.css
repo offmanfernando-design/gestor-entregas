@@ -193,33 +193,28 @@
   background: var(--success);
 }
 
+/* cuando está offline */
 .sync-status.offline .dot {
   background: #b0b0b0;
 }
 
-/* === INDICADOR DE CONEXIÓN: FIX FINAL DE LOS ... === */
-
-.sync-status .text {
-  position: relative;
-  padding-right: 16px; /* reserva espacio para los puntos */
+/* cuando está conectando → pulso */
+.sync-status.loading .dot {
+  animation: pulse 1.4s infinite ease-in-out;
 }
 
-.sync-status .text::after {
-  content: '...';
-  position: absolute;
-  right: 0;
-  top: 0;
-  opacity: 0;
-}
-
-/* animación SOLO cuando está cargando */
-.sync-status.loading .text::after {
-  animation: dotsPulse 1.4s infinite ease-in-out;
-  opacity: 1;
-}
-
-@keyframes dotsPulse {
-  0%   { opacity: 0.25; }
-  50%  { opacity: 1; }
-  100% { opacity: 0.25; }
+/* animación sutil, tipo latido */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
 }
