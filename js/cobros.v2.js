@@ -5,6 +5,11 @@ let textoBusqueda = '';
 let fechaFiltro = '';
 let datos = [];
 
+/* ========================= */
+/* CONTADOR VISUAL AVISOS    */
+/* ========================= */
+const avisosCountPorCliente = {};
+
 document.addEventListener('DOMContentLoaded', cargarCobros);
 
 /* ========================= */
@@ -29,7 +34,9 @@ window.aplicarBusqueda = function () {
 /* ========================= */
 
 async function cargarCobros() {
-  const res = await fetch(`${API_BASE_URL}/api/cobros?estado_cobro=${tabActual}`);
+  const res = await fetch(
+    `${API_BASE_URL}/api/cobros?estado_cobro=${tabActual}`
+  );
   datos = await res.json();
   render();
 }
@@ -44,7 +51,10 @@ function render() {
 
   datos
     .filter(c => {
-      if (textoBusqueda && !c.cliente_nombre.toLowerCase().includes(textoBusqueda)) {
+      if (
+        textoBusqueda &&
+        !c.cliente_nombre.toLowerCase().includes(textoBusqueda)
+      ) {
         return false;
       }
       return true;
@@ -54,22 +64,26 @@ function render() {
       div.className = 'cobro-card';
       div.dataset.id = c.cliente_id;
 
+      const vecesAvisado = avisosCountPorCliente[c.cliente_id] || 1;
+
       let bottom = '';
 
-      /* PENDIENTE */
+      /* ===== POR COBRAR ===== */
       if (tabActual === 'pendiente') {
         bottom = `
           <button class="cobro-action primary"
             onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}', this)">
             Avisar
-          </button>`;
+          </button>
+        `;
       }
 
-      /* AVISADO */
+      /* ===== AVISADOS ===== */
       if (tabActual === 'avisado') {
-        const veces = c.veces_avisado || 1;
         bottom = `
-          <span class="cobro-estado">Avisado · ${veces}</span>
+          <span class="cobro-estado">
+            Avisado · ${vecesAvisado}
+          </span>
 
           <button class="cobro-action"
             onclick="avisar('${c.cliente_id}', '${c.cliente_telefono}', this)">
@@ -79,12 +93,17 @@ function render() {
           <button class="cobro-action primary"
             onclick="pagar('${c.cliente_id}', this)">
             Confirmar pago
-          </button>`;
+          </button>
+        `;
       }
 
-      /* PAGADO */
+      /* ===== PAGADO ===== */
       if (tabActual === 'pagado') {
-        bottom = `<span class="cobro-estado pagado">Pago confirmado</span>`;
+        bottom = `
+          <span class="cobro-estado pagado">
+            Pago confirmado
+          </span>
+        `;
       }
 
       div.innerHTML = `
@@ -94,7 +113,9 @@ function render() {
             <span class="cobro-codigo">${c.cliente_id}</span>
           </div>
 
-          <div class="cobro-monto">${c.monto_total_bs} Bs</div>
+          <div class="cobro-monto">
+            ${c.monto_total_bs} Bs
+          </div>
         </div>
 
         <div class="cobro-bottom">
@@ -108,18 +129,21 @@ function render() {
 
 /* ========================= */
 /* MENSAJE WHATSAPP          */
-/* (NO TOCADO)               */
 /* ========================= */
 
-function generarMensajeWhatsApp(c) {
-  const productosValidos = (c.productos || []).filter(p =>
-    p.cobrar_bs && Number(p.cobrar_bs) > 0
+function generarMensajeWhatsAppPorCliente(clienteId) {
+  const entregasCliente = datos.filter(
+    d => d.cliente_id === clienteId
   );
 
-  const departamento = (c.departamento_destino || '').toLowerCase().trim();
+  if (!entregasCliente.length) return '';
+
+  const c0 = entregasCliente[0];
+  const nombre = c0.cliente_nombre;
+  const departamento = (c0.departamento_destino || '').toLowerCase();
   const esSantaCruz = departamento.includes('santa cruz');
 
-  let mensaje = `Hola ${c.cliente_nombre}\n\n`;
+  let mensaje = `Hola ${nombre}\n\n`;
 
   mensaje += esSantaCruz
     ? 'Tu pedido llegó a nuestra oficina.\n\n'
@@ -127,13 +151,22 @@ function generarMensajeWhatsApp(c) {
 
   let total = 0;
 
-  productosValidos.forEach((p, i) => {
-    total += Number(p.cobrar_bs);
-    mensaje += `${i + 1}) Producto: ${p.nombre}\n`;
-    mensaje += `Costo: ${p.peso_a_cobrar} kg × ${p.tipo_cobro} × ${p.dolar_cliente} = ${p.cobrar_bs} Bs\n\n`;
+  entregasCliente.forEach((p, i) => {
+    const peso = Number(p.peso_cobrado) || 0;
+    const tipo = Number(p.tipo_de_cobro) || 0;
+    const dolar = Number(p.dolar_cliente) || 0;
+    const bs = Number(p.monto_total_bs) || 0;
+
+    if (bs <= 0) return;
+
+    total += bs;
+
+    mensaje += `${i + 1}) Producto: ${p.descripcion_producto}\n`;
+    mensaje +=
+      `Costo: ${peso} kg × ${tipo} × ${dolar} = ${bs} Bs\n\n`;
   });
 
-  if (productosValidos.length > 1) {
+  if (entregasCliente.length > 1) {
     mensaje += `Total a pagar: ${total} Bs\n\n`;
   }
 
@@ -145,7 +178,7 @@ function generarMensajeWhatsApp(c) {
       'Ubicación: https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n';
   } else {
     mensaje +=
-      'Para realizar el envío, por favor confirma los siguientes datos:\n\n' +
+      'Para realizar el envío, por favor confirma:\n\n' +
       'Nombre completo:\n' +
       'Departamento / destino:\n' +
       'Número de celular:\n\n';
@@ -164,11 +197,18 @@ window.avisar = async function (clienteId, telefono, btn) {
   const card = btn.closest('.cobro-card');
   card.classList.add('leaving');
 
-  const c = datos.find(d => d.cliente_id === clienteId);
-  const mensaje = generarMensajeWhatsApp(c);
+  // 🔹 Incrementar contador visual
+  avisosCountPorCliente[clienteId] =
+    (avisosCountPorCliente[clienteId] || 0) + 1;
+
+  const mensaje =
+    generarMensajeWhatsAppPorCliente(clienteId);
 
   if (telefono) {
-    window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+    window.open(
+      `https://wa.me/${telefono}?text=${mensaje}`,
+      '_blank'
+    );
   }
 
   await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
