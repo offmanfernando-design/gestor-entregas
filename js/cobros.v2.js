@@ -5,6 +5,7 @@ let datos = [];
 let lastSync = null;
 let avisando = false;
 let pagando = false;
+const detalleCache = {};
 
 /* =========================
    INDICADOR DE CONEXIÓN
@@ -113,7 +114,7 @@ function render() {
       bottom = `
         ${accionInfo}
         <button class="cobro-action primary" ${avisando ? 'disabled' : ''}
-          onclick="avisar('${c.cliente_id}','${c.cliente_telefono}')">
+          onclick="event.stopPropagation(); avisar('${c.cliente_id}','${c.cliente_telefono}')">
           Avisar
         </button>`;
     }
@@ -124,12 +125,12 @@ function render() {
         <span class="cobro-estado">Avisado · ${c.avisos_count}</span>
 
         <button class="cobro-action" ${avisando ? 'disabled' : ''}
-          onclick="avisar('${c.cliente_id}','${c.cliente_telefono}')">
+          onclick="event.stopPropagation(); avisar('${c.cliente_id}','${c.cliente_telefono}')">
           Reavisar
         </button>
 
         <button class="cobro-action primary" ${pagando ? 'disabled' : ''}
-          onclick="pagar('${c.cliente_id}')">
+          onclick="event.stopPropagation(); pagar('${c.cliente_id}')">
           Confirmar pago
         </button>`;
     }
@@ -149,11 +150,59 @@ function render() {
         </div>
         <div><strong>${c.monto_total_bs} Bs</strong></div>
       </div>
+
       <div class="cobro-bottom">${bottom}</div>
+
+      <div class="cobro-historial" style="display:none"></div>
     `;
+
+    div.onclick = () => toggleHistorial(div, c.cliente_id);
 
     cont.appendChild(div);
   });
+}
+
+/* =========================
+   HISTORIAL
+   ========================= */
+
+async function toggleHistorial(card, clienteId) {
+  const box = card.querySelector('.cobro-historial');
+  if (!box) return;
+
+  if (box.style.display === 'block') {
+    box.style.display = 'none';
+    return;
+  }
+
+  box.style.display = 'block';
+
+  if (detalleCache[clienteId]) {
+    box.innerHTML = detalleCache[clienteId];
+    return;
+  }
+
+  box.innerHTML = '<small>Cargando historial…</small>';
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/cobros/detalle/${clienteId}`);
+    const rows = await res.json();
+
+    const html = rows.map(r => `
+      <div class="hist-item">
+        <small>
+          ${r.ultima_accion || '—'} · ${r.ultima_accion_fecha || ''}
+          · ${r.descripcion_producto || ''}
+          · ${r.monto_total_bs || 0} Bs
+        </small>
+      </div>
+    `).join('');
+
+    detalleCache[clienteId] = html || '<small>Sin historial</small>';
+    box.innerHTML = detalleCache[clienteId];
+  } catch {
+    box.innerHTML = '<small>Error cargando historial</small>';
+  }
 }
 
 /* =========================
@@ -228,7 +277,7 @@ window.avisar = async function (clienteId, telefono) {
     } else {
       actualizarIndicador(true);
     }
-  } catch (e) {
+  } catch {
     actualizarIndicador(false);
   }
 
@@ -249,7 +298,7 @@ window.pagar = async function (clienteId) {
     });
 
     actualizarIndicador(true);
-  } catch (e) {
+  } catch {
     actualizarIndicador(false);
   }
 
