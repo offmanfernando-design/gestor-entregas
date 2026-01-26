@@ -220,7 +220,7 @@
 }
 
 /* ========================= */
-/* MODAL PWA                 */
+/* MODAL PWA (COMPACTO)      */
 /* ========================= */
 
 .app-modal {
@@ -232,42 +232,40 @@
   justify-content: center;
 }
 
-/* oculto por defecto */
 .app-modal.hidden {
   display: none;
 }
 
-/* fondo oscuro suave */
 .app-modal-backdrop {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.35);
 }
 
-/* tarjeta del modal */
+/* Card compacta tipo sistema */
 .app-modal-card {
   position: relative;
   z-index: 1;
-  width: calc(100% - 48px);
-  max-width: 360px;
+  width: calc(100% - 64px);
+  max-width: 280px;
   background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  border-radius: 14px;
+  padding: 16px 16px 14px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  text-align: center;
 }
 
-/* contenido */
+/* Texto centrado y compacto */
 .app-modal-content {
   font-size: 14px;
   color: var(--fg);
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
-/* acciones */
+/* Acciones centradas */
 .app-modal-actions {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
+  justify-content: center;
+  margin-top: 14px;
 }
 
