@@ -3,6 +3,8 @@ import API_BASE_URL from './config.js';
 let tabActual = 'pendiente';
 let datos = [];
 let lastSync = null;
+let avisando = false;
+let pagando = false;
 
 /* =========================
    INDICADOR DE CONEXIÓN
@@ -105,7 +107,7 @@ function render() {
     if (tabActual === 'pendiente') {
       bottom = `
         ${accionInfo}
-        <button class="cobro-action primary"
+        <button class="cobro-action primary" ${avisando ? 'disabled' : ''}
           onclick="avisar('${c.cliente_id}','${c.cliente_telefono}')">
           Avisar
         </button>`;
@@ -116,12 +118,12 @@ function render() {
         ${accionInfo}
         <span class="cobro-estado">Avisado · ${c.avisos_count}</span>
 
-        <button class="cobro-action"
+        <button class="cobro-action" ${avisando ? 'disabled' : ''}
           onclick="avisar('${c.cliente_id}','${c.cliente_telefono}')">
           Reavisar
         </button>
 
-        <button class="cobro-action primary"
+        <button class="cobro-action primary" ${pagando ? 'disabled' : ''}
           onclick="pagar('${c.cliente_id}')">
           Confirmar pago
         </button>`;
@@ -199,6 +201,10 @@ async function generarMensaje(clienteId) {
    ========================= */
 
 window.avisar = async function (clienteId, telefono) {
+  if (avisando) return;
+  avisando = true;
+  render();
+
   try {
     const mensaje = await generarMensaje(clienteId);
     if (telefono) {
@@ -214,18 +220,22 @@ window.avisar = async function (clienteId, telefono) {
     if (!res.ok) {
       const data = await res.json();
       alert(data.error || 'No se pudo avisar');
-      return;
+    } else {
+      actualizarIndicador(true);
     }
-
-    actualizarIndicador(true);
   } catch (e) {
     actualizarIndicador(false);
   }
 
+  avisando = false;
   cargarCobros();
 };
 
 window.pagar = async function (clienteId) {
+  if (pagando) return;
+  pagando = true;
+  render();
+
   try {
     await fetch(`${API_BASE_URL}/api/cobros/pagar`, {
       method: 'PUT',
@@ -238,5 +248,6 @@ window.pagar = async function (clienteId) {
     actualizarIndicador(false);
   }
 
+  pagando = false;
   cargarCobros();
 };
