@@ -6,6 +6,29 @@ let avisando = false;
 let pagando = false;
 
 /* =========================
+   MODAL PWA
+   ========================= */
+
+function mostrarModal(mensaje) {
+  const modal = document.getElementById('appModal');
+  const text = document.getElementById('appModalMessage');
+  const btn = document.getElementById('appModalClose');
+
+  if (!modal || !text || !btn) return;
+
+  text.textContent = mensaje;
+  modal.classList.remove('hidden');
+
+  btn.onclick = cerrarModal;
+}
+
+function cerrarModal() {
+  const modal = document.getElementById('appModal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+}
+
+/* =========================
    INDICADOR DE CONEXIÓN
    ========================= */
 
@@ -38,7 +61,9 @@ function tiempoHumanoDesde(fechaISO) {
   const diffMs = Date.now() - fecha.getTime();
   const diffMin = Math.floor(diffMs / 60000);
 
-  if (diffMin < 60) return `hoy ${fecha.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  if (diffMin < 60) {
+    return `hoy ${fecha.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  }
   if (diffMin < 1440) return 'ayer';
   const dias = Math.floor(diffMin / 1440);
   return `hace ${dias} día${dias > 1 ? 's' : ''}`;
@@ -88,13 +113,10 @@ function render() {
 
   datos.forEach(c => {
     const div = document.createElement('div');
-
     let infoExtra = '';
 
     if (tabActual === 'pendiente') {
-      infoExtra = `
-        <small>${c.descripcion_producto || ''}</small>
-      `;
+      infoExtra = `<small>${c.descripcion_producto || ''}</small>`;
     }
 
     if (tabActual === 'avisado') {
@@ -161,7 +183,6 @@ window.avisar = async function (clienteId, telefono) {
   render();
 
   try {
-    // 1️⃣ Primero backend
     const res = await fetch(`${API_BASE_URL}/api/cobros/avisar`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -170,13 +191,12 @@ window.avisar = async function (clienteId, telefono) {
 
     if (!res.ok) {
       const data = await res.json();
-      alert(data.error || 'No se pudo avisar');
+      mostrarModal(data.error || 'No se pudo avisar');
       avisando = false;
       render();
       return;
     }
 
-    // 2️⃣ Recién abrir WhatsApp
     const msg = await generarMensaje(clienteId);
     if (telefono) {
       window.open(`https://wa.me/${telefono}?text=${msg}`, '_blank');
