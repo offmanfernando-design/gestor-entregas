@@ -98,8 +98,13 @@ function render() {
     const div = document.createElement('div');
     let bottom = '';
 
+    let accionClass = '';
+    if (c.ultima_accion === 'AVISO') accionClass = 'aviso';
+    if (c.ultima_accion === 'REAVISO') accionClass = 'reaviso';
+    if (c.ultima_accion === 'PAGO') accionClass = 'pago';
+
     const accionInfo = c.ultima_accion
-      ? `<div class="cobro-accion">
+      ? `<div class="cobro-accion ${accionClass}">
            <small>${c.ultima_accion} · ${c.ultima_accion_fecha || ''}</small>
          </div>`
       : '';
