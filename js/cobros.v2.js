@@ -122,7 +122,7 @@ function render() {
     if (tabActual === 'avisado') {
       infoExtra = `
         <small>
-          Aviso ${c.avisos_count || 1} · último aviso ${tiempoHumanoDesde(c.ultima_accion_fecha)}
+          Aviso ${c.avisos_count || 1} · ${tiempoHumanoDesde(c.ultima_accion_fecha)}
         </small>
       `;
     }
