@@ -245,3 +245,23 @@
   66%  { content: '..'; }
   100% { content: '...'; }
 }
+
+/* ========================= */
+/* ÚLTIMA ACCIÓN (COMPAT)    */
+/* ========================= */
+
+.cobro-accion.aviso small {
+  color: #1976d2;
+  font-weight: 600;
+}
+
+.cobro-accion.reaviso small {
+  color: #ef6c00;
+  font-weight: 600;
+}
+
+.cobro-accion.pago small {
+  color: var(--success);
+  font-weight: 700;
+}
+
