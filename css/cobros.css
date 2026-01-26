@@ -197,26 +197,35 @@
   background: #b0b0b0;
 }
 
-/* Texto fijo, solo animan los puntos */
-.sync-status .text::after {
-  content: '...';
-  display: inline-block;
-  width: 16px;          /* evita que se mueva el layout */
-  text-align: left;
-  animation: dots 1.4s infinite;
+.sync-status .text {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
 
-.sync-status.loading .text::after {
-  animation-play-state: running;
+.sync-status .dots {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 2px;
 }
 
-.sync-status:not(.loading) .text::after {
-  animation-play-state: paused;
+.sync-status .dots span {
+  width: 3px;
+  height: 3px;
+  background: currentColor;
+  border-radius: 50%;
+  opacity: 0.2;
 }
 
-@keyframes dots {
-  0%   { content: ''; }
-  33%  { content: '.'; }
-  66%  { content: '..'; }
-  100% { content: '...'; }
+.sync-status.loading .dots span {
+  animation: dotPulse 1.4s infinite ease-in-out both;
+}
+
+.sync-status.loading .dots span:nth-child(1) { animation-delay: 0s; }
+.sync-status.loading .dots span:nth-child(2) { animation-delay: 0.2s; }
+.sync-status.loading .dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dotPulse {
+  0%, 80%, 100% { opacity: 0.2; }
+  40% { opacity: 1; }
 }
