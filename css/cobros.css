@@ -203,6 +203,7 @@
   gap: 2px;
 }
 
+/* tres puntos reales, no content */
 .sync-status .dots {
   display: inline-flex;
   gap: 2px;
@@ -214,9 +215,10 @@
   height: 3px;
   background: currentColor;
   border-radius: 50%;
-  opacity: 0.2;
+  opacity: 0.25;
 }
 
+/* animación solo en loading */
 .sync-status.loading .dots span {
   animation: dotPulse 1.4s infinite ease-in-out both;
 }
@@ -226,6 +228,6 @@
 .sync-status.loading .dots span:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes dotPulse {
-  0%, 80%, 100% { opacity: 0.2; }
+  0%, 80%, 100% { opacity: 0.25; }
   40% { opacity: 1; }
 }
