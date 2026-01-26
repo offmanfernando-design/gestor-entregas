@@ -265,3 +265,21 @@
   font-weight: 700;
 }
 
+/* ========================= */
+/* HISTORIAL DE COBROS SAFE  */
+/* ========================= */
+
+.hist-item.aviso small {
+  color: #1976d2;
+}
+
+.hist-item.reaviso small {
+  color: #ef6c00;
+}
+
+.hist-item.pago small {
+  color: var(--success);
+  font-weight: 600;
+}
+
+
