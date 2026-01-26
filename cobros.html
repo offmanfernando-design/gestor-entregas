@@ -18,11 +18,11 @@
   <header class="home-header">
     <h1>Cobros</h1>
     <p>Gestión de pagos</p>
-    <div id="syncStatus" class="sync-status">
-  <span class="dot"></span>
-  <span class="text">Conectado</span>
-</div>
 
+    <div id="syncStatus" class="sync-status">
+      <span class="dot"></span>
+      <span class="text">Conectado</span>
+    </div>
   </header>
 
   <div class="tabs">
@@ -51,6 +51,26 @@
     © Bolivia Imports · v1.1 · by Felipe Antelo
   </footer>
 
+</div>
+
+<!-- ========================= -->
+<!-- MODAL PWA (OCULTO)       -->
+<!-- ========================= -->
+
+<div id="appModal" class="app-modal hidden">
+  <div class="app-modal-backdrop"></div>
+
+  <div class="app-modal-card">
+    <div class="app-modal-content">
+      <p id="appModalMessage"></p>
+    </div>
+
+    <div class="app-modal-actions">
+      <button id="appModalClose" class="cobro-action primary">
+        Entendido
+      </button>
+    </div>
+  </div>
 </div>
 
 <script type="module" src="js/cobros.v2.js"></script>
