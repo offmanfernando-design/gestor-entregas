@@ -156,6 +156,19 @@
   align-items: center;
   gap: 8px;
   margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+/* >>> NUEVO: INFO ÚLTIMA ACCIÓN <<< */
+.cobro-accion {
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.cobro-accion small {
+  font-size: 11px;
+  color: var(--muted);
+  opacity: 0.85;
 }
 
 .cobro-estado {
@@ -232,5 +245,3 @@
   66%  { content: '..'; }
   100% { content: '...'; }
 }
-
-
