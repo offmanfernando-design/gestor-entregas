@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cotización – Bolivia Imports</title>
+  <link rel="stylesheet" href="../../styles/main.css">
+</head>
+<body>
+
+<h2>Bolivia Imports</h2>
+
+<table>
+  <tr><td><b>Cliente</b></td><td id="cliente"></td></tr>
+  <tr><td><b>Fecha</b></td><td id="fecha"></td></tr>
+  <tr><td><b>Cotización</b></td><td id="codigo"></td></tr>
+  <tr><td><b>Mercadería</b></td><td id="mercaderia"></td></tr>
+  <tr><td><b>Valor producto</b></td><td id="valor"></td></tr>
+  <tr><td><b>Impuestos</b></td><td id="impuestos"></td></tr>
+  <tr><td><b>Kg aprox</b></td><td id="kg"></td></tr>
+  <tr><td><b>Transporte</b></td><td id="transporte"></td></tr>
+  <tr><td><b>Total en sus manos</b></td><td id="total"></td></tr>
+  <tr><td><b>1er pago</b></td><td id="pago1"></td></tr>
+  <tr><td><b>2do pago</b></td><td id="pago2"></td></tr>
+</table>
+
+<p><i>Esta cotización tiene una validez de 24 horas</i></p>
+
+<script>
+import API_BASE_URL from '../../config.js';
+
+fetch(`${API_BASE_URL}/api/cotizador/vista-cliente`)
+  .then(r => r.json())
+  .then(d => {
+    cliente.innerText = d.cliente;
+    fecha.innerText = d.fecha;
+    codigo.innerText = d.codigo;
+    mercaderia.innerText = d.mercaderia;
+    valor.innerText = d.valorProducto;
+    impuestos.innerText = d.impuestos;
+    kg.innerText = d.kg;
+    transporte.innerText = d.transporte;
+    total.innerText = d.total;
+    pago1.innerText = d.pago1;
+    pago2.innerText = d.pago2;
+  });
+</script>
+
+</body>
+</html>
