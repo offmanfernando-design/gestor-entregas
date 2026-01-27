@@ -1,0 +1,60 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #fff;
+  color: #000;
+  padding: 30px;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+td:first-child {
+  font-weight: bold;
+  width: 45%;
+}
+
+.total {
+  background: #e6f4e6;
+  font-weight: bold;
+}
+
+.pago1 {
+  background: #ffe0b2;
+  font-weight: bold;
+}
+
+.pago2 {
+  background: #c7dbff;
+  font-weight: bold;
+}
+
+.footer {
+  margin-top: 20px;
+  font-size: 12px;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ---- SOLO IMPRESIÓN ---- */
+@media print {
+  body {
+    padding: 0;
+  }
+
+  h2 {
+    margin-top: 0;
+  }
+}
