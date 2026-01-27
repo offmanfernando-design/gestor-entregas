@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cotizador – Bolivia Imports</title>
+  <link rel="stylesheet" href="../../styles/main.css">
+</head>
+<body>
+
+<h2>Cotizador (interno)</h2>
+
+<section>
+  <h3>Datos del cliente</h3>
+  <input id="cliente" placeholder="Nombre / ID cliente">
+  <input id="codigo" placeholder="Código cotización (ej: IS060126)">
+</section>
+
+<section>
+  <h3>Datos del producto</h3>
+  <input id="fob" type="number" placeholder="Valor FOB">
+  <input id="flete" type="number" placeholder="Flete">
+  <input id="seguro" type="number" placeholder="Seguro">
+
+  <select id="categoria">
+    <option value="">-- Categoría --</option>
+    <option value="repuesto de vehiculo">Repuesto de vehículo</option>
+    <option value="ropa">Ropa</option>
+    <option value="calzados">Calzados</option>
+    <option value="electronico">Electrónico</option>
+    <option value="Mercaderia general">Mercadería general</option>
+  </select>
+</section>
+
+<section>
+  <h3>Peso / dimensiones</h3>
+  <input id="peso" type="number" step="0.01" placeholder="Peso bruto (kg)">
+  <input id="alto" type="number" placeholder="Alto">
+  <input id="ancho" type="number" placeholder="Ancho">
+  <input id="profundo" type="number" placeholder="Profundo">
+</section>
+
+<button onclick="calcular()">Calcular cotización</button>
+<button onclick="verCliente()">Ver cotización cliente</button>
+
+<hr>
+
+<section>
+  <h3>Resultado (interno)</h3>
+  <p>Total: <b id="total">—</b></p>
+  <p>1er pago: <b id="pago1">—</b></p>
+  <p>2do pago: <b id="pago2">—</b></p>
+</section>
+
+<script src="cotizador.js"></script>
+</body>
+</html>
