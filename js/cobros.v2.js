@@ -272,7 +272,7 @@ window.pagar = async function (clienteId) {
 };
 
 /* =========================
-   MENSAJE WHATSAPP
+   MENSAJE WHATSAPP (4 CASOS)
    ========================= */
 
 async function generarMensaje(clienteId) {
@@ -280,14 +280,80 @@ async function generarMensaje(clienteId) {
   const productos = await res.json();
   if (!productos.length) return '';
 
-  let msg = `Hola ${productos[0].cliente_nombre}\n\n`;
+  const c0 = productos[0];
+  const nombre = c0.cliente_nombre || '';
+  const esSantaCruz = (c0.departamento_destino || '')
+    .toLowerCase()
+    .includes('santa cruz');
+
+  const esMultiple = productos.length > 1;
+
+  let msg = `Hola ${nombre} 👋\n\n`;
+
+  /* =========================
+     ENCABEZADO
+     ========================= */
+
+  if (esSantaCruz) {
+    msg += esMultiple
+      ? 'Tus pedidos llegaron a nuestra oficina en Santa Cruz.\n\n'
+      : 'Tu pedido llegó a nuestra oficina en Santa Cruz.\n\n';
+  } else {
+    msg += esMultiple
+      ? 'Tus pedidos ya se encuentran disponibles para envío.\n\n'
+      : 'Tu pedido ya se encuentra disponible para envío.\n\n';
+  }
+
+  /* =========================
+     DETALLE DE PRODUCTOS
+     ========================= */
+
   let total = 0;
+
+  if (esMultiple) {
+    msg += '📦 Detalle:\n';
+  } else {
+    msg += '📦 Producto:\n';
+  }
 
   productos.forEach((p, i) => {
     total += Number(p.monto_total_bs || 0);
-    msg += `${i + 1}) ${p.descripcion_producto} - ${p.monto_total_bs} Bs\n`;
+
+    if (esMultiple) {
+      msg += `${i + 1}) ${p.descripcion_producto}\n`;
+      msg += `   Monto: ${p.monto_total_bs} Bs\n\n`;
+    } else {
+      msg += `${p.descripcion_producto}\n\n`;
+    }
   });
 
-  msg += `\nTotal a pagar: ${total} Bs\n\n— Bolivia Imports`;
+  /* =========================
+     TOTAL
+     ========================= */
+
+  msg += `💰 ${esMultiple ? 'Total a pagar' : 'Monto a pagar'}: ${total} Bs\n\n`;
+
+  /* =========================
+     BLOQUE FINAL SEGÚN UBICACIÓN
+     ========================= */
+
+  if (esSantaCruz) {
+    msg +=
+      '💳 Pago: QR o efectivo (solo Bs)\n\n' +
+      '🕒 Horario:\n' +
+      '09:30–12:00 / 14:30–18:00\n\n' +
+      '📍 Ubicación:\n' +
+      'https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n';
+  } else {
+    msg +=
+      'Para coordinar el envío, por favor envíanos:\n' +
+      '• Nombre completo\n' +
+      '• Departamento\n' +
+      '• Ciudad\n' +
+      '• Celular de contacto\n\n';
+  }
+
+  msg += '— Bolivia Imports';
+
   return encodeURIComponent(msg);
 }
