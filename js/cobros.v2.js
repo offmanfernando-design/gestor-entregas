@@ -2,6 +2,7 @@ import API_BASE_URL from './config.js';
 
 let tabActual = 'pendiente';
 let datos = [];
+let datosFiltrados = [];
 let avisando = false;
 let pagando = false;
 
@@ -85,6 +86,7 @@ async function cargarCobros() {
   try {
     const res = await fetch(`${API_BASE_URL}/api/cobros?estado_cobro=${tabActual}`);
     datos = await res.json();
+    datosFiltrados = [...datos];
     render();
     actualizarIndicador(true);
   } catch {
@@ -104,6 +106,43 @@ window.cambiarTab = function (tab, btn) {
 };
 
 /* =========================
+   BUSCADOR
+   ========================= */
+
+window.aplicarBusqueda = function () {
+  const texto = document.getElementById('buscadorCobros').value
+    .trim()
+    .toLowerCase();
+
+  const fecha = document.getElementById('filtroFecha').value;
+
+  datosFiltrados = datos.filter(c => {
+    let okTexto = true;
+    let okFecha = true;
+
+    if (texto) {
+      const nombre = (c.cliente_nombre || '').toLowerCase();
+      const telefono = (c.cliente_telefono || '').toLowerCase();
+      const clienteId = (c.cliente_id || '').toString();
+      const ultimos4 = clienteId.slice(-4);
+
+      okTexto =
+        nombre.includes(texto) ||
+        telefono.includes(texto) ||
+        ultimos4.includes(texto);
+    }
+
+    if (fecha) {
+      okFecha = (c.fecha || '').startsWith(fecha);
+    }
+
+    return okTexto && okFecha;
+  });
+
+  render();
+};
+
+/* =========================
    RENDER
    ========================= */
 
@@ -111,7 +150,7 @@ function render() {
   const cont = document.getElementById('listaCobros');
   cont.innerHTML = '';
 
-  datos.forEach(c => {
+  datosFiltrados.forEach(c => {
     const div = document.createElement('div');
     let infoExtra = '';
 
