@@ -5,6 +5,8 @@ let datos = [];
 let datosFiltrados = [];
 let avisando = false;
 let pagando = false;
+let tarjetasAbiertas = {};
+
 
 /* =========================
    MODAL PWA
@@ -166,21 +168,28 @@ function render() {
       `;
     }
 
-    div.className = 'cobro-card';
-    div.innerHTML = `
-      <div class="cobro-top">
-        <div>
-          <strong>${c.cliente_nombre}</strong><br>
-          <small>${c.cliente_id}</small><br>
-          ${infoExtra}
-        </div>
-        <div><strong>${c.monto_total_bs} Bs</strong></div>
-      </div>
+div.className = 'cobro-card';
+div.onclick = () => toggleDetalle(c.cliente_id);
 
-      <div class="cobro-bottom">
-        ${renderBotones(c)}
-      </div>
-    `;
+div.innerHTML = `
+  <div class="cobro-top">
+    <div>
+      <strong>${c.cliente_nombre}</strong><br>
+      <small>${c.cliente_id}</small><br>
+      ${infoExtra}
+    </div>
+    <div><strong>${c.monto_total_bs} Bs</strong></div>
+  </div>
+
+  <div class="cobro-bottom">
+    ${renderBotones(c)}
+  </div>
+
+  <div class="cobro-detalle hidden" id="detalle-${c.cliente_id}">
+    <small>Cargando detalle...</small>
+  </div>
+`;
+
 
     cont.appendChild(div);
   });
@@ -211,6 +220,58 @@ function renderBotones(c) {
 
   return `<span class="cobro-estado pagado">Pago confirmado</span>`;
 }
+
+/* =========================
+   DESGLOSE EXPANDIBLE
+   ========================= */
+
+async function toggleDetalle(clienteId, card) {
+  const cont = document.getElementById(`detalle-${clienteId}`);
+  if (!cont) return;
+
+  const abierto = tarjetasAbiertas[clienteId];
+
+  if (abierto) {
+    cont.classList.add('hidden');
+    tarjetasAbiertas[clienteId] = false;
+    return;
+  }
+
+  tarjetasAbiertas[clienteId] = true;
+  cont.classList.remove('hidden');
+
+  if (cont.dataset.loaded) return;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/cobros/detalle/${clienteId}`);
+    const productos = await res.json();
+
+    let html = '<div class="detalle-lista">';
+    let total = 0;
+
+    productos.forEach((p, i) => {
+      total += Number(p.monto_total_bs || 0);
+      html += `
+        <div class="detalle-item">
+          <strong>${i + 1}) ${p.descripcion_producto}</strong><br>
+          <small>Monto: ${p.monto_total_bs} Bs</small>
+        </div>
+      `;
+    });
+
+    html += `
+      <div class="detalle-total">
+        <strong>Total: ${total} Bs</strong>
+      </div>
+    </div>`;
+
+    cont.innerHTML = html;
+    cont.dataset.loaded = '1';
+  } catch {
+    cont.innerHTML = '<small>Error al cargar detalle</small>';
+  }
+}
+
 
 /* =========================
    ACCIONES
