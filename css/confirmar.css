@@ -59,40 +59,50 @@ h2 {
    LISTA DE ENTREGAS
    ========================= */
 
-#listaEntregas {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 0 16px 30px;
-}
+/* =========================
+   CARDS DE ENTREGA
+   ========================= */
 
-.fila {
+.entrega-card {
   background: #fff;
   border-radius: 18px;
   padding: 14px 16px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  cursor: pointer;
 }
 
-.fila strong {
-  font-size: 16px;
-  display: block;
+.entrega-ubicacion {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 18px;
+  font-weight: 700;
   margin-bottom: 4px;
 }
 
-.fila b {
-  font-weight: 600;
+.entrega-cliente {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 2px;
 }
 
-.fila .ubicacion {
-  font-size: 15px;
-  margin-top: 4px;
+.entrega-monto {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
 }
 
-.fila .monto {
-  margin-top: 6px;
+.entrega-confirmar {
+  margin-top: 10px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
+  background: #000;
+  color: #fff;
+  font-size: 14px;
   font-weight: 600;
+  cursor: pointer;
 }
+
 
 /* =========================
    MODAL
