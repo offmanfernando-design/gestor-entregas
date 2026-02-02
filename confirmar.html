@@ -9,10 +9,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
   <link rel="stylesheet" href="css/app.css" />
   <link rel="stylesheet" href="css/confirmar.css" />
-
 </head>
+
 <body>
 
+  <!-- ========================= -->
+  <!-- CONTENIDO PRINCIPAL      -->
+  <!-- ========================= -->
   <main>
 
     <h2>Gestor de Entregas</h2>
@@ -36,12 +39,35 @@
 
   </main>
 
-  <!-- MODAL -->
-  <div id="modal" class="hidden">
-    <div id="modal-content"></div>
+  <!-- ========================= -->
+  <!-- FOOTER GLOBAL            -->
+  <!-- ========================= -->
+  <footer class="footer">
+    © Bolivia Imports · v1.1 · by Felipe Antelo
+  </footer>
+
+  <!-- ========================= -->
+  <!-- MODAL PWA (GLOBAL)       -->
+  <!-- ========================= -->
+  <div id="appModal" class="app-modal hidden">
+    <div class="app-modal-backdrop"></div>
+
+    <div class="app-modal-card">
+      <div class="app-modal-content">
+        <p id="appModalMessage"></p>
+      </div>
+
+      <div class="app-modal-actions">
+        <button id="appModalClose" class="cobro-action primary">
+          Entendido
+        </button>
+      </div>
+    </div>
   </div>
 
-  <!-- JS -->
+  <!-- ========================= -->
+  <!-- JS                       -->
+  <!-- ========================= -->
   <script type="module" src="./entregas.js"></script>
 
 </body>
