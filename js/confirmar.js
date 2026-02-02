@@ -78,17 +78,31 @@ searchInput.addEventListener('input', cargarEntregas);
    ========================= */
 function renderFila(entrega) {
   const div = document.createElement('div');
-  div.className = 'fila';
+  div.className = 'card';
 
   div.innerHTML = `
-    <strong>${entrega.cliente_nombre}</strong>
-    <div class="ubicacion">📍 <b>${entrega.ubicacion_fisica}</b></div>
-    <div class="monto">💰 Bs ${entrega.monto_total_bs}</div>
+    <div class="card-header">
+      <div class="card-title">${entrega.cliente_nombre}</div>
+      <div class="card-amount">Bs ${entrega.monto_total_bs}</div>
+    </div>
+
+    <div class="card-meta">
+      <span class="meta-item">📍 ${entrega.ubicacion_fisica}</span>
+    </div>
+
+    <div class="card-actions">
+      <button class="action primary">Confirmar</button>
+    </div>
   `;
 
-  div.addEventListener('click', () => abrirDetalle(entrega.entrega_id));
+  div.querySelector('button').addEventListener('click', (e) => {
+    e.stopPropagation();
+    abrirDetalle(entrega.entrega_id);
+  });
+
   lista.appendChild(div);
 }
+
 
 /* =========================
    DETALLE / CONFIRMAR
