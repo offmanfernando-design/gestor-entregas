@@ -1,0 +1,22 @@
+<h2>Gestor de Entregas</h2>
+
+<div class="tabs">
+  <button id="tab-almacen" class="active">📦 En almacén</button>
+  <button id="tab-historial">🕓 Historial</button>
+</div>
+
+<input
+  type="text"
+  id="searchInput"
+  placeholder="Buscar por nombre, teléfono o ID..."
+/>
+
+<div id="listaEntregas"></div>
+
+<!-- Modal detalle -->
+<div id="modal" class="hidden">
+  <div id="modal-content"></div>
+  <button onclick="cerrarModal()">Cerrar</button>
+</div>
+
+<script type="module" src="./entregas.js"></script>
