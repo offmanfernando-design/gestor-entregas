@@ -1,5 +1,8 @@
 import API_BASE_URL from './config.js';
 
+/* =========================
+   ESTADO GLOBAL
+   ========================= */
 let estadoActual = 'en_almacen';
 
 const lista = document.getElementById('listaEntregas');
@@ -7,15 +10,29 @@ const searchInput = document.getElementById('searchInput');
 const tabAlmacen = document.getElementById('tab-almacen');
 const tabHistorial = document.getElementById('tab-historial');
 
-tabAlmacen.onclick = () => cambiarEstado('en_almacen');
-tabHistorial.onclick = () => cambiarEstado('entregado');
+/* =========================
+   MODAL PWA
+   ========================= */
+const appModal = document.getElementById('appModal');
+const appModalMessage = document.getElementById('appModalMessage');
+const appModalClose = document.getElementById('appModalClose');
 
-searchInput.addEventListener('input', cargarEntregas);
+function showModal(message) {
+  appModalMessage.textContent = message;
+  appModal.classList.remove('hidden');
+}
+
+appModalClose.addEventListener('click', () => {
+  appModal.classList.add('hidden');
+});
 
 /* =========================
-   CAMBIO DE TAB
+   TABS
    ========================= */
-async function cambiarEstado(estado) {
+tabAlmacen.addEventListener('click', () => cambiarEstado('en_almacen'));
+tabHistorial.addEventListener('click', () => cambiarEstado('entregado'));
+
+function cambiarEstado(estado) {
   estadoActual = estado;
 
   tabAlmacen.classList.toggle('active', estado === 'en_almacen');
@@ -32,21 +49,32 @@ async function cargarEntregas() {
   let url = `${API_BASE_URL}/gestor-entregas?estado=${estadoActual}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
 
-  const res = await fetch(url);
-  const json = await res.json();
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
 
-  lista.innerHTML = '';
+    lista.innerHTML = '';
 
-  if (!json.data || json.data.length === 0) {
-    lista.innerHTML = `<p style="text-align:center;color:#777;">Sin resultados</p>`;
-    return;
+    if (!json.data || json.data.length === 0) {
+      lista.innerHTML = `
+        <p style="text-align:center;color:#777;">
+          No hay entregas para mostrar
+        </p>
+      `;
+      return;
+    }
+
+    json.data.forEach(renderFila);
+  } catch (err) {
+    console.error(err);
+    showModal('Error al cargar las entregas. Verifica la conexión.');
   }
-
-  json.data.forEach(renderFila);
 }
 
+searchInput.addEventListener('input', cargarEntregas);
+
 /* =========================
-   FILA DE ENTREGA
+   RENDER FILA
    ========================= */
 function renderFila(entrega) {
   const div = document.createElement('div');
@@ -58,57 +86,53 @@ function renderFila(entrega) {
     <div class="monto">💰 Bs ${entrega.monto_total_bs}</div>
   `;
 
-  div.onclick = () => abrirDetalle(entrega.entrega_id);
+  div.addEventListener('click', () => abrirDetalle(entrega.entrega_id));
   lista.appendChild(div);
 }
 
 /* =========================
-   DETALLE / MODAL
+   DETALLE / CONFIRMAR
    ========================= */
 async function abrirDetalle(entrega_id) {
-  const res = await fetch(`${API_BASE_URL}/gestor-entregas/${entrega_id}`);
-  const json = await res.json();
-  const e = json.data;
+  try {
+    const res = await fetch(`${API_BASE_URL}/gestor-entregas/${entrega_id}`);
+    const json = await res.json();
+    const e = json.data;
 
-  document.getElementById('modal-content').innerHTML = `
-    <h3>📍 UBICACIÓN: ${e.ubicacion_fisica}</h3>
-
-    <p><b>Cliente:</b> ${e.cliente_nombre}</p>
-    <p><b>Descripción:</b> ${e.descripcion_producto}</p>
-    <p><b>Ítems:</b> ${e.cantidad_items}</p>
-    <p><b>Monto:</b> Bs ${e.monto_total_bs}</p>
-
-    ${
-      e.estado_operativo === 'en_almacen'
-        ? `<button class="confirmar" onclick="confirmarEntrega('${e.entrega_id}')">
-             ✅ Confirmar entrega
-           </button>`
-        : `<p style="text-align:center;color:#777;"><i>Entrega ya realizada</i></p>`
+    if (e.estado_operativo !== 'en_almacen') {
+      showModal('Esta entrega ya fue registrada como entregada.');
+      return;
     }
-  `;
 
-  document.getElementById('modal').classList.remove('hidden');
+    confirmarEntrega(entrega_id, e);
+  } catch (err) {
+    console.error(err);
+    showModal('No se pudo cargar el detalle de la entrega.');
+  }
 }
 
-/* =========================
-   CONFIRMAR ENTREGA
-   ========================= */
-async function confirmarEntrega(entrega_id) {
-  if (!confirm('¿Confirmar entrega?')) return;
+async function confirmarEntrega(entrega_id, entrega) {
+  showModal(
+    `¿Confirmar entrega para:\n\n${entrega.cliente_nombre}\nUbicación: ${entrega.ubicacion_fisica}`
+  );
 
-  await fetch(`${API_BASE_URL}/gestor-entregas/${entrega_id}/entregar`, {
-    method: 'PATCH',
-  });
+  // Reasignamos acción del botón
+  appModalClose.onclick = async () => {
+    appModal.classList.add('hidden');
 
-  cerrarModal();
-  cargarEntregas();
-}
+    try {
+      await fetch(
+        `${API_BASE_URL}/gestor-entregas/${entrega_id}/entregar`,
+        { method: 'PATCH' }
+      );
 
-/* =========================
-   CERRAR MODAL
-   ========================= */
-function cerrarModal() {
-  document.getElementById('modal').classList.add('hidden');
+      showModal('Entrega confirmada correctamente.');
+      cargarEntregas();
+    } catch (err) {
+      console.error(err);
+      showModal('Error al confirmar la entrega.');
+    }
+  };
 }
 
 /* =========================
