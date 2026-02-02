@@ -1,22 +1,50 @@
-<h2>Gestor de Entregas</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-<div class="tabs">
-  <button id="tab-almacen" class="active">📦 En almacén</button>
-  <button id="tab-historial">🕓 Historial</button>
-</div>
+  <title>Gestor de Entregas</title>
 
-<input
-  type="text"
-  id="searchInput"
-  placeholder="Buscar por nombre, teléfono o ID..."
-/>
+  <!-- CSS GLOBAL DEL PWA (si ya existe) -->
+  <link rel="stylesheet" href="./styles.css" />
 
-<div id="listaEntregas"></div>
+  <!-- CSS ESPECÍFICO DE ENTREGAS -->
+  <link rel="stylesheet" href="./entregas.css" />
 
-<!-- Modal detalle -->
-<div id="modal" class="hidden">
-  <div id="modal-content"></div>
-  <button onclick="cerrarModal()">Cerrar</button>
-</div>
+</head>
+<body>
 
-<script type="module" src="./entregas.js"></script>
+  <main>
+
+    <h2>Gestor de Entregas</h2>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button id="tab-almacen" class="active">📦 En almacén</button>
+      <button id="tab-historial">🕓 Historial</button>
+    </div>
+
+    <!-- BUSCADOR -->
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Buscar por nombre, teléfono o ID"
+      autocomplete="off"
+    />
+
+    <!-- LISTA -->
+    <div id="listaEntregas"></div>
+
+  </main>
+
+  <!-- MODAL -->
+  <div id="modal" class="hidden">
+    <div id="modal-content"></div>
+  </div>
+
+  <!-- JS -->
+  <script type="module" src="./entregas.js"></script>
+
+</body>
+</html>
