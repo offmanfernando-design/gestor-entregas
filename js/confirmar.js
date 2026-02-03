@@ -78,36 +78,59 @@ searchInput.addEventListener('input', cargarEntregas);
    ========================= */
 function renderFila(entrega) {
   const div = document.createElement('div');
-  div.className = 'cobro-card';
+  div.className = 'cobro-card swipe-card';
 
   div.innerHTML = `
-    <div class="cobro-header">
-      <div class="cobro-cliente">
-        ${entrega.cliente_nombre}
-      </div>
-      <div class="cobro-monto">
-        Bs ${entrega.monto_total_bs}
-      </div>
-    </div>
+    <div class="swipe-bg">✔ Confirmar</div>
 
-    <div class="cobro-detalle">
-      <span class="material-symbols-rounded">location_on</span>
-      ${entrega.ubicacion_fisica || 'Sin ubicación'}
-    </div>
+    <div class="swipe-content">
+      <div class="cobro-header">
+        <div class="cobro-cliente">
+          ${entrega.cliente_nombre}
+        </div>
+        <div class="cobro-monto">
+          Bs ${entrega.monto_total_bs}
+        </div>
+      </div>
 
-    <div class="cobro-actions">
-      <button class="cobro-action primary">
-        Confirmar
-      </button>
+      <div class="cobro-detalle">
+        <span class="material-symbols-rounded">location_on</span>
+        ${entrega.ubicacion_fisica || 'Sin ubicación'}
+      </div>
     </div>
   `;
 
-  div
-    .querySelector('.cobro-action')
-    .addEventListener('click', (e) => {
-      e.stopPropagation();
-      abrirDetalle(entrega.entrega_id);
-    });
+  let startX = 0;
+  let currentX = 0;
+  let dragging = false;
+
+  const content = div.querySelector('.swipe-content');
+
+  div.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    dragging = true;
+    content.style.transition = 'none';
+  });
+
+  div.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    currentX = e.touches[0].clientX - startX;
+    if (currentX > 0) {
+      content.style.transform = `translateX(${currentX}px)`;
+    }
+  });
+
+  div.addEventListener('touchend', () => {
+    dragging = false;
+    content.style.transition = 'transform 0.25s ease';
+
+    if (currentX > 80) {
+      confirmarEntrega(entrega.entrega_id, entrega);
+    }
+
+    content.style.transform = 'translateX(0)';
+    currentX = 0;
+  });
 
   lista.appendChild(div);
 }
