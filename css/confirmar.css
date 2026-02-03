@@ -1,4 +1,61 @@
 /* =========================
+   CONEXIÓN (MISMO LINAJE COBROS)
+   ========================= */
+.sync-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.sync-status .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+.sync-status.loading .dot {
+  background: var(--muted);
+  animation: pulse 1.2s infinite ease-in-out;
+}
+
+.sync-status.offline .dot {
+  background: #999;
+}
+
+@keyframes pulse {
+  0% { opacity: .3; }
+  50% { opacity: 1; }
+  100% { opacity: .3; }
+}
+
+/* =========================
+   TABS (SCOPED A CONFIRMAR)
+   ========================= */
+.confirmar-tabs {
+  margin-top: -10px;
+}
+
+/* =========================
+   SEARCH BOX (MISMO LINAJE)
+   ========================= */
+.confirmar-search {
+  padding: 0 16px 16px;
+}
+
+.confirmar-search input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+/* =========================
    GRUPO CLIENTE
    ========================= */
 .cliente-header {
