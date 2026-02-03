@@ -1,292 +1,187 @@
-/* ========================= */
-/* HEADER                    */
-/* ========================= */
+/* =========================
+   BASE
+   ========================= */
 
-.home-header {
-  padding-bottom: 24px;
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  overflow: hidden;
 }
 
-.home-header h1 {
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
+h2 {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 10;
+  margin: 0;
+  padding: 16px 0 10px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
 }
 
-.home-header p {
-  margin-top: 6px;
+/* =========================
+   MAIN SCROLL
+   ========================= */
+
+main {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 16px;
 }
 
-/* ========================= */
-/* TABS                      */
-/* ========================= */
+/* =========================
+   TABS
+   ========================= */
 
 .tabs {
   display: flex;
-  gap: 8px;
-  padding: 0 16px;
-  margin: 4px 0 12px;
+  justify-content: center;
+  gap: 10px;
+  margin: 12px 16px 16px;
 }
 
-.tab {
-  flex: 1;
-  padding: 8px 0;
-  font-size: 14px;
+.tabs button {
+  padding: 8px 18px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--card);
-  color: var(--fg);
-}
-
-.tab.active {
-  background: var(--fg);
-  color: var(--bg);
-}
-
-/* ========================= */
-/* BUSCADOR + FECHA          */
-/* ========================= */
-
-.search-box {
-  padding: 0 16px;
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.search-box input {
-  flex: 1;
-  padding: 10px 12px;
-  font-size: 14px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--input-bg);
-  color: var(--fg);
-}
-
-.date-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 10px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--input-bg);
-}
-
-.date-wrapper span {
-  font-size: 18px;
-  color: var(--muted);
-}
-
-.date-wrapper input {
-  border: none;
-  background: transparent;
-  color: var(--fg);
   font-size: 13px;
-  width: 120px;
+  cursor: pointer;
 }
 
-/* ========================= */
-/* TARJETAS                  */
-/* ========================= */
+.tabs button.active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+/* =========================
+   BUSCADOR
+   ========================= */
+
+#searchInput {
+  width: calc(100% - 32px);
+  margin: 0 16px 18px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+/* =========================
+   LISTA
+   ========================= */
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0 16px;
+}
+
+/* =========================
+   CARD ENTREGA (NATIVA)
+   ========================= */
 
 .cobro-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 14px 16px;
-  margin: 0 16px 12px;
-  animation: enter 0.16s ease-out;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
-@keyframes enter {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* HEADER */
+.cobro-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
-/* ========================= */
-/* TOP CARD                  */
-/* ========================= */
-
-.cobro-top {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  align-items: start;
-}
-
-.cobro-top strong {
+.cobro-cliente {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.25;
 }
 
-.cobro-top small {
-  font-size: 12px;
+.cobro-monto {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--success);
+}
+
+/* UBICACIÓN */
+.cobro-detalle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 13px;
   color: var(--muted);
 }
 
-/* ========================= */
-/* FOOTER CARD               */
-/* ========================= */
+.cobro-detalle span {
+  font-size: 18px;
+}
 
-.cobro-bottom {
+/* ACCIONES */
+.cobro-actions {
   display: flex;
   justify-content: flex-end;
-  align-items: center;
-  gap: 8px;
   margin-top: 12px;
-  flex-wrap: wrap;
-}
-
-.cobro-estado {
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.06);
-  color: var(--muted);
-}
-
-.cobro-estado.pagado {
-  background: rgba(46,125,50,0.18);
-  color: var(--success);
-  font-weight: 600;
-}
-
-.cobro-action {
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 13px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  color: var(--fg);
-  cursor: pointer;
 }
 
 .cobro-action.primary {
-  background: var(--fg);
-  color: var(--bg);
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 999px;
+  cursor: pointer;
 }
 
-.cobro-action:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* ========================= */
-/* INDICADOR DE CONEXIÓN     */
-/* ========================= */
-
-.sync-status {
-  margin-top: 6px;
-  font-size: 12px;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.sync-status .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--success);
-}
-
-/* cuando está offline */
-.sync-status.offline .dot {
-  background: #b0b0b0;
-}
-
-/* cuando está conectando → pulso */
-.sync-status.loading .dot {
-  animation: pulse 1.4s infinite ease-in-out;
-}
-
-/* animación sutil, tipo latido */
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  50% {
-    transform: scale(1.4);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-}
-
-/* ========================= */
-/* MODAL PWA (COMPACTO)      */
-/* ========================= */
+/* =========================
+   MODAL PWA
+   ========================= */
 
 .app-modal {
   position: fixed;
   inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.app-modal.hidden {
-  display: none;
+  z-index: 2000;
 }
 
 .app-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.45);
 }
 
-/* Card compacta tipo sistema */
 .app-modal-card {
   position: relative;
-  z-index: 1;
-  width: calc(100% - 64px);
-  max-width: 280px;
+  margin: auto;
   background: var(--card);
-  border-radius: 14px;
-  padding: 16px 16px 14px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  width: calc(100% - 32px);
+  max-width: 420px;
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.app-modal-content p {
+  font-size: 15px;
+  line-height: 1.4;
   text-align: center;
 }
 
-/* Texto centrado y compacto */
-.app-modal-content {
-  font-size: 14px;
-  color: var(--fg);
-  line-height: 1.35;
-}
-
-/* Acciones centradas */
 .app-modal-actions {
-  display: flex;
-  justify-content: center;
-  margin-top: 14px;
+  margin-top: 18px;
 }
 
-.cobro-detalle {
-  margin-top: 8px;
-  padding: 8px;
-  background: #f7f7f7;
-  border-radius: 6px;
-}
-
-.cobro-detalle.hidden {
+.hidden {
   display: none;
 }
-
-.detalle-item {
-  margin-bottom: 6px;
-}
-
-.detalle-total {
-  margin-top: 8px;
-  border-top: 1px solid #ddd;
-  padding-top: 6px;
-}
-
