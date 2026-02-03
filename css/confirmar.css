@@ -1,48 +1,20 @@
 /* =========================
-   HEADER
+   GRUPO CLIENTE
    ========================= */
-.module-header {
-  padding: 16px;
-}
-
-.module-header h1 {
-  font-size: 20px;
-  margin: 0 0 12px;
-}
-
-/* =========================
-   LISTA
-   ========================= */
-.card-list {
-  padding: 0 16px 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-/* =========================
-   CLIENTE
-   ========================= */
-.cliente-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .cliente-header {
   font-size: 13px;
   font-weight: 600;
   color: var(--muted);
-  margin-left: 2px;
+  margin: 16px 2px 6px;
 }
 
 /* =========================
-   ENTREGA (ESTILO COBROS)
+   ENTREGA (MISMO LENGUAJE COBROS)
    ========================= */
 .entrega {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 18px;
   overflow: hidden;
 }
 
@@ -57,7 +29,6 @@
 
 .entrega-producto {
   font-size: 13px;
-  color: var(--fg);
   margin: 4px 0;
 }
 
