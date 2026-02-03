@@ -66,6 +66,10 @@ body {
   display: flex;
   flex-direction: column;
 }
+.app {
+  overflow-y: auto;
+  height: 100dvh;
+}
 
 /* ========================= */
 /* SPLASH                    */
