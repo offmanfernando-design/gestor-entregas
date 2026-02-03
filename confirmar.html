@@ -2,74 +2,43 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-  />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Gestor de Entregas</title>
 
-  <!-- ICONOS -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded"
-    rel="stylesheet"
-  />
-
-  <!-- CSS GLOBAL + MÓDULO -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
   <link rel="stylesheet" href="css/app.css" />
   <link rel="stylesheet" href="css/confirmar.css" />
 </head>
 
 <body>
-  <!-- CONTENEDOR APP (CLAVE PARA LOOK NATIVO) -->
   <div class="app">
 
-    <main>
-      <h2>Gestor de Entregas</h2>
+    <!-- HEADER -->
+    <header class="module-header">
+      <h1>Gestor de Entregas</h1>
 
-      <!-- TABS -->
       <div class="tabs">
         <button id="tab-almacen" class="active">📦 En almacén</button>
         <button id="tab-historial">🕓 Historial</button>
       </div>
 
-      <!-- BUSCADOR -->
       <input
-        type="text"
         id="searchInput"
-        placeholder="Buscar por nombre, teléfono o ID"
+        type="text"
+        placeholder="Buscar cliente, producto o ubicación"
         autocomplete="off"
       />
+    </header>
 
-      <!-- LISTA -->
-      <div id="listaEntregas" class="card-list"></div>
-    </main>
+    <!-- LISTA -->
+    <main id="listaEntregas" class="card-list"></main>
 
-    <!-- FOOTER -->
     <footer class="footer">
       © Bolivia Imports · v1.1 · by Felipe Antelo
     </footer>
 
   </div>
 
-  <!-- MODAL PWA -->
-  <div id="appModal" class="app-modal hidden">
-    <div class="app-modal-backdrop"></div>
-
-    <div class="app-modal-card">
-      <div class="app-modal-content">
-        <p id="appModalMessage"></p>
-      </div>
-
-      <div class="app-modal-actions">
-        <button id="appModalClose" class="cobro-action primary">
-          Entendido
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- JS -->
   <script type="module" src="js/confirmar.js"></script>
 </body>
 </html>
