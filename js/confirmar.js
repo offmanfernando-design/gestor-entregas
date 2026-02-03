@@ -6,6 +6,30 @@ const lista = document.getElementById('listaEntregas');
 const searchInput = document.getElementById('searchInput');
 const tabAlmacen = document.getElementById('tab-almacen');
 const tabHistorial = document.getElementById('tab-historial');
+const syncStatus = document.getElementById('syncStatus');
+
+/* =========================
+   ESTADO DE CONEXIÓN
+   ========================= */
+function setConectando() {
+  if (!syncStatus) return;
+  syncStatus.classList.add('loading');
+  syncStatus.classList.remove('offline');
+  syncStatus.querySelector('.text').textContent = 'Conectando';
+}
+
+function setConectado() {
+  if (!syncStatus) return;
+  syncStatus.classList.remove('loading', 'offline');
+  syncStatus.querySelector('.text').textContent = 'Conectado';
+}
+
+function setOffline() {
+  if (!syncStatus) return;
+  syncStatus.classList.remove('loading');
+  syncStatus.classList.add('offline');
+  syncStatus.querySelector('.text').textContent = 'Sin conexión';
+}
 
 /* =========================
    TABS
@@ -35,32 +59,42 @@ function agruparPorCliente(entregas) {
    CARGAR ENTREGAS
    ========================= */
 async function cargarEntregas() {
+  setConectando();
+
   const search = searchInput.value.trim();
   let url = `${API_BASE_URL}/gestor-entregas?estado=${estadoActual}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
 
-  const res = await fetch(url);
-  const json = await res.json();
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
 
-  lista.innerHTML = '';
+    lista.innerHTML = '';
 
-  if (!json.data || json.data.length === 0) {
-    lista.innerHTML = `<p class="empty">No hay entregas</p>`;
-    return;
-  }
+    if (!json.data || json.data.length === 0) {
+      lista.innerHTML = `<p class="empty">No hay entregas</p>`;
+      setConectado();
+      return;
+    }
 
-  const grupos = agruparPorCliente(json.data);
+    const grupos = agruparPorCliente(json.data);
 
-  Object.entries(grupos).forEach(([cliente, entregas]) => {
-    const header = document.createElement('div');
-    header.className = 'cliente-header';
-    header.textContent = cliente;
-    lista.appendChild(header);
+    Object.entries(grupos).forEach(([cliente, entregas]) => {
+      const header = document.createElement('div');
+      header.className = 'cliente-header';
+      header.textContent = cliente;
+      lista.appendChild(header);
 
-    entregas.forEach(e => {
-      lista.appendChild(renderEntrega(e));
+      entregas.forEach(e => {
+        lista.appendChild(renderEntrega(e));
+      });
     });
-  });
+
+    setConectado();
+  } catch (err) {
+    console.error(err);
+    setOffline();
+  }
 }
 
 searchInput.oninput = cargarEntregas;
@@ -108,14 +142,12 @@ function renderEntrega(entrega) {
     const dx = e.touches[0].clientX - startX;
     const dy = e.touches[0].clientY - startY;
 
-    // Si el gesto es más vertical, cancelamos swipe
     if (Math.abs(dy) > Math.abs(dx)) {
       dragging = false;
       content.style.transform = 'translateX(0)';
       return;
     }
 
-    // Swipe derecha → izquierda (dx negativo)
     if (dx < 0) {
       currentX = dx;
       content.style.transform = `translateX(${dx}px)`;
@@ -141,10 +173,14 @@ function renderEntrega(entrega) {
    CONFIRMAR ENTREGA
    ========================= */
 async function confirmarEntrega(id) {
-  await fetch(`${API_BASE_URL}/gestor-entregas/${id}/entregar`, {
-    method: 'PATCH'
-  });
-  cargarEntregas();
+  try {
+    await fetch(`${API_BASE_URL}/gestor-entregas/${id}/entregar`, {
+      method: 'PATCH'
+    });
+    cargarEntregas();
+  } catch {
+    setOffline();
+  }
 }
 
 /* INIT */
