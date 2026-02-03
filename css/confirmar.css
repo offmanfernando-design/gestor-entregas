@@ -87,3 +87,32 @@
 .cobro-action:active {
   transform: scale(0.96);
 }
+
+/* =========================
+   SWIPE CONFIRMAR
+   ========================= */
+
+.swipe-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.swipe-bg {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  padding-left: 24px;
+  font-size: 14px;
+}
+
+.swipe-content {
+  background: var(--card);
+  border-radius: 20px;
+  position: relative;
+  z-index: 1;
+}
+
