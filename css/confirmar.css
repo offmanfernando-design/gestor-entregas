@@ -5,7 +5,7 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--muted);
-  margin: 16px 2px 6px;
+  margin: 18px 2px 6px;
 }
 
 /* =========================
@@ -41,7 +41,7 @@
 }
 
 /* =========================
-   SWIPE
+   SWIPE (DERECHA → IZQUIERDA)
    ========================= */
 .swipe-card {
   position: relative;
@@ -54,7 +54,8 @@
   color: #fff;
   display: flex;
   align-items: center;
-  padding-left: 18px;
+  justify-content: flex-end;
+  padding-right: 18px;
   font-size: 13px;
   font-weight: 600;
 }
