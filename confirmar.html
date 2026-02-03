@@ -13,23 +13,29 @@
 <body>
   <div class="app">
 
-    <!-- HEADER (MISMO LINAJE QUE COBROS) -->
+    <!-- HEADER -->
     <header class="home-header">
       <h1>Gestor de Entregas</h1>
-      <p class="subtitle">Gestión de entregas · <strong>Conectado</strong></p>
+      <p class="subtitle">Gestión de entregas</p>
+
+      <!-- ESTADO DE CONEXIÓN -->
+      <div id="syncStatus" class="sync-status loading">
+        <span class="dot"></span>
+        <span class="text">Conectando</span>
+      </div>
     </header>
 
-    <!-- TABS (MISMO ESTILO QUE COBROS) -->
-    <div class="tabs">
+    <!-- TABS -->
+    <div class="tabs confirmar-tabs">
       <button id="tab-almacen" class="active">En almacén</button>
       <button id="tab-historial">Historial</button>
     </div>
 
-    <!-- BUSCADOR (MISMO BLOQUE QUE COBROS) -->
-    <div class="filters">
+    <!-- BUSCADOR -->
+    <div class="search-box confirmar-search">
       <input
         id="searchInput"
-        type="text"
+        type="search"
         placeholder="Buscar cliente, producto o ubicación"
         autocomplete="off"
       />
