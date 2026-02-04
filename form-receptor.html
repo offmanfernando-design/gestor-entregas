@@ -238,22 +238,45 @@
       'input[name="recoge"]:checked'
     ).value;
 
-    const payload = {
-      pedido_id: pedido,
-      cliente_nombre: cliente,
-      recoge_quien: recoge,
-      nombre_receptor:
-        recoge === 'tercero'
-          ? document.getElementById('nombreReceptor').value
-          : cliente,
-      telefono_receptor:
-        recoge === 'tercero'
-          ? document.getElementById('telefonoReceptor').value
-          : '',
-      referencia: document.getElementById('referenciaReceptor').value,
-      destino: document.getElementById('destino').value,
-      transportadora: document.getElementById('transportadora').value,
-      observaciones: document.getElementById('observaciones').value
+    // Validaciones mínimas ANTES de enviar
+if (!pedido || !cliente) {
+  alert('Faltan datos del pedido o cliente.');
+  return;
+}
+
+if (!document.getElementById('destino').value.trim()) {
+  alert('Debes ingresar el destino.');
+  return;
+}
+
+const payload = {
+  pedido_id: pedido,
+  cliente_nombre: cliente,
+  recoge_quien: recoge,
+
+  nombre_receptor:
+    recoge === 'tercero'
+      ? document.getElementById('nombreReceptor').value.trim()
+      : cliente,
+
+  telefono_receptor:
+    recoge === 'tercero'
+      ? document.getElementById('telefonoReceptor').value.trim()
+      : '',
+
+  referencia:
+    document.getElementById('referenciaReceptor').value.trim() || '',
+
+  destino:
+    document.getElementById('destino').value.trim(),
+
+  transportadora:
+    document.getElementById('transportadora').value.trim() || '',
+
+  observaciones:
+    document.getElementById('observaciones').value.trim() || ''
+};
+
     };
 
     try {
