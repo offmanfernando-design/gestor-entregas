@@ -56,6 +56,11 @@ body {
 .sync-status.loading .dot {
   background: #f59e0b; /* amarillo */
 }
+@keyframes pulse {
+  0% { opacity: .3; }
+  50% { opacity: 1; }
+  100% { opacity: .3; }
+}
 
 /* =========================
    TABS
