@@ -254,3 +254,29 @@ body {
 .hidden {
   display: none;
 }
+
+/* =========================
+   ESTADO PAGADO (BADGE)
+   ========================= */
+
+.cobro-estado.pagado {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #e8f6ee;          /* verde suave */
+  color: #1f7a4a;               /* verde oscuro */
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* =========================
+   SCROLL FIX (COBROS)
+   ========================= */
+
+.app.view {
+  height: 100vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
