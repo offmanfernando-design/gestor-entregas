@@ -121,6 +121,30 @@
       color: var(--muted);
       padding: 14px 0 18px;
     }
+
+    /* ===== TOAST PWA ===== */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      background: #111;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-8px);
+    }
   </style>
 </head>
 <body>
@@ -128,26 +152,20 @@
 <div class="form-container">
 
   <h1>Bolivia Imports</h1>
-  <div class="subtitle">
-    Coordinación de envío a terminal
-  </div>
+  <div class="subtitle">Coordinación de envío a terminal</div>
 
-  <!-- Datos del pedido (solo lectura) -->
   <div class="card">
     <div><strong>Pedido:</strong> <span id="pedidoId">—</span></div>
     <div><strong>Cliente:</strong> <span id="clienteNombre">—</span></div>
   </div>
 
-  <!-- Quién recoge -->
   <div class="card">
     <span class="label">¿Quién recogerá el pedido?</span>
-
     <div class="radio-group">
       <label>
         <input type="radio" name="recoge" value="cliente" checked>
         <span>Yo mismo</span>
       </label>
-
       <label>
         <input type="radio" name="recoge" value="tercero">
         <span>Otra persona</span>
@@ -155,7 +173,6 @@
     </div>
   </div>
 
-  <!-- Datos receptor -->
   <div class="card hidden" id="datosReceptor">
     <label class="label">Nombre completo del receptor *</label>
     <input type="text" id="nombreReceptor" />
@@ -167,20 +184,17 @@
     <input type="text" id="referenciaReceptor" />
   </div>
 
-  <!-- Destino -->
   <div class="card">
     <label class="label">Departamento / ciudad *</label>
-    <input type="text" id="destino" placeholder="Ej: Quillacollo, Cochabamba" />
+    <input type="text" id="destino" />
 
     <label class="label" style="margin-top:10px;">Transportadora preferida (opcional)</label>
     <input type="text" id="transportadora" />
   </div>
 
-  <!-- Observaciones -->
   <div class="card">
     <label class="label">Observaciones (opcional)</label>
-    <textarea id="observaciones"
-      placeholder="Ej: recogerá mi hermano"></textarea>
+    <textarea id="observaciones"></textarea>
   </div>
 
   <button id="btnEnviar">Confirmar datos de envío</button>
@@ -191,15 +205,14 @@
 
 </div>
 
-<!-- FOOTER -->
 <footer class="footer">
   © Bolivia Imports · v2 · by Felipe Antelo
 </footer>
 
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
 <script>
-  /* =========================
-     TOGGLE RECEPTOR
-     ========================= */
   const radios = document.querySelectorAll('input[name="recoge"]');
   const bloque = document.getElementById('datosReceptor');
 
@@ -209,92 +222,60 @@
     });
   });
 
-  /* =========================
-     LEER PARAMETROS URL
-     ========================= */
   const params = new URLSearchParams(window.location.search);
   const pedido = params.get('pedido');
   const cliente = params.get('cliente');
 
-  if (pedido) {
-    document.getElementById('pedidoId').textContent = pedido;
+  if (pedido) document.getElementById('pedidoId').textContent = pedido;
+  if (cliente) document.getElementById('clienteNombre').textContent = decodeURIComponent(cliente);
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
   }
 
-  if (cliente) {
-    document.getElementById('clienteNombre').textContent =
-      decodeURIComponent(cliente);
-  }
-
-  /* =========================
-     ENVIAR FORMULARIO
-     ========================= */
-  const btn = document.getElementById('btnEnviar');
-
-  btn.addEventListener('click', async () => {
-    const recoge = document.querySelector(
-      'input[name="recoge"]:checked'
-    ).value;
-
+  document.getElementById('btnEnviar').addEventListener('click', async () => {
     if (!pedido || !cliente) {
-      alert('Faltan datos del pedido o cliente.');
+      showToast('Faltan datos del pedido o cliente');
       return;
     }
 
-    if (!document.getElementById('destino').value.trim()) {
-      alert('Debes ingresar el destino.');
+    if (!destino.value.trim()) {
+      showToast('Debes ingresar el destino');
       return;
     }
+
+    const recoge = document.querySelector('input[name="recoge"]:checked').value;
 
     const payload = {
       pedido_id: pedido,
       cliente_nombre: cliente,
       recoge_quien: recoge,
-
-      nombre_receptor:
-        recoge === 'tercero'
-          ? document.getElementById('nombreReceptor').value.trim()
-          : cliente,
-
-      telefono_receptor:
-        recoge === 'tercero'
-          ? document.getElementById('telefonoReceptor').value.trim()
-          : '',
-
-      referencia:
-        document.getElementById('referenciaReceptor').value.trim() || '',
-
-      destino:
-        document.getElementById('destino').value.trim(),
-
-      transportadora:
-        document.getElementById('transportadora').value.trim() || '',
-
-      observaciones:
-        document.getElementById('observaciones').value.trim() || ''
+      nombre_receptor: recoge === 'tercero' ? nombreReceptor.value.trim() : cliente,
+      telefono_receptor: recoge === 'tercero' ? telefonoReceptor.value.trim() : '',
+      referencia: referenciaReceptor.value.trim() || '',
+      destino: destino.value.trim(),
+      transportadora: transportadora.value.trim() || '',
+      observaciones: observaciones.value.trim() || ''
     };
 
     try {
-      const res = await fetch(
-        'https://bolivia-imports-backend.fly.dev/api/receptores',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        }
-      );
+      const res = await fetch('https://bolivia-imports-backend.fly.dev/api/receptores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
       if (!res.ok) throw new Error();
+      showToast('Datos enviados correctamente 🙌');
 
-      alert('Datos enviados correctamente. Gracias 🙌');
-
-    } catch (err) {
-      console.error(err);
-      alert('Error al enviar los datos. Intenta nuevamente.');
+    } catch {
+      showToast('Error al enviar los datos');
     }
   });
 </script>
-
-
 
 </body>
 </html>
