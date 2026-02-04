@@ -134,8 +134,8 @@
 
   <!-- Datos del pedido (solo lectura) -->
   <div class="card">
-    <div><strong>Pedido:</strong> BI-2847</div>
-    <div><strong>Cliente:</strong> Juan Pérez</div>
+    <div><strong>Pedido:</strong> <span id="pedidoId">—</span></div>
+    <div><strong>Cliente:</strong> <span id="clienteNombre">—</span></div>
   </div>
 
   <!-- Quién recoge -->
@@ -180,10 +180,10 @@
   <div class="card">
     <label class="label">Observaciones (opcional)</label>
     <textarea id="observaciones"
-      placeholder="Ej: recogerá mi hermano, llega en la mañana"></textarea>
+      placeholder="Ej: recogerá mi hermano"></textarea>
   </div>
 
-  <button>Confirmar datos de envío</button>
+  <button id="btnEnviar">Confirmar datos de envío</button>
 
   <div class="footer-text">
     Estos datos serán usados para coordinar el envío de tu pedido.
@@ -197,6 +197,9 @@
 </footer>
 
 <script>
+  /* =========================
+     TOGGLE RECEPTOR
+     ========================= */
   const radios = document.querySelectorAll('input[name="recoge"]');
   const bloque = document.getElementById('datosReceptor');
 
@@ -205,6 +208,50 @@
       bloque.classList.toggle('hidden', r.value !== 'tercero');
     });
   });
+
+  /* =========================
+     LEER PARAMETROS URL
+     ========================= */
+  const params = new URLSearchParams(window.location.search);
+  const pedido = params.get('pedido');
+  const cliente = params.get('cliente');
+
+  if (pedido) document.getElementById('pedidoId').textContent = pedido;
+  if (cliente) document.getElementById('clienteNombre').textContent = decodeURIComponent(cliente);
+
+  /* =========================
+     ENVIAR FORMULARIO
+     ========================= */
+  document.getElementById('btnEnviar').addEventListener('click', async () => {
+    const recoge = document.querySelector('input[name="recoge"]:checked').value;
+
+    const payload = {
+      pedido_id: pedido,
+      cliente_nombre: cliente,
+      recoge_quien: recoge,
+      nombre_receptor: recoge === 'tercero' ? document.getElementById('nombreReceptor').value : cliente,
+      telefono_receptor: recoge === 'tercero' ? document.getElementById('telefonoReceptor').value : '',
+      referencia: document.getElementById('referenciaReceptor').value,
+      destino: document.getElementById('destino').value,
+      transportadora: document.getElementById('transportadora').value,
+      observaciones: document.getElementById('observaciones').value,
+    };
+
+    try {
+  const res = await fetch('https://bolivia-imports-backend.fly.dev/api/receptores', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) throw new Error();
+
+  alert('Datos enviados correctamente. Gracias 🙌');
+
+} catch {
+  alert('Error al enviar los datos. Intenta nuevamente.');
+}
+
 </script>
 
 </body>
