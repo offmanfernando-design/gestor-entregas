@@ -368,4 +368,8 @@
   line-height: 1;             /* 👈 evita desplazamiento */
 }
 
+.hidden {
+  display: none;
+}
+
 
