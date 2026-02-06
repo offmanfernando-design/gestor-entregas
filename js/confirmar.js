@@ -53,14 +53,11 @@ function cambiarEstado(estado) {
    CARGAR
    ========================= */
 async function cargarEntregas() {
-  /* 🔹 FIX DUPLICACIÓN: token local */
-  const currentToken = ++renderToken;
-
   lista.innerHTML = '';
   setConectando();
 
-  // 🟡 TERMINAL
-   if (estadoActual === 'terminal') {
+  // 🟡 TERMINAL (placeholder por ahora)
+  if (estadoActual === 'terminal') {
     try {
       const res = await fetch(`${API_BASE_URL}/api/receptores`);
       const json = await res.json();
@@ -95,8 +92,7 @@ async function cargarEntregas() {
     }
   }
 
-
-  // 🔵 ALMACÉN / HISTORIAL
+  // 🔵 ALMACÉN / HISTORIAL (flujo actual intacto)
   const search = searchInput.value.trim();
   let url = `${API_BASE_URL}/gestor-entregas?estado=${estadoActual}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
@@ -104,9 +100,6 @@ async function cargarEntregas() {
   try {
     const res = await fetch(url);
     const json = await res.json();
-
-    /* 🔹 cancelar render viejo */
-    if (currentToken !== renderToken) return;
 
     const grupos = agruparPorCliente(json.data || []);
 
