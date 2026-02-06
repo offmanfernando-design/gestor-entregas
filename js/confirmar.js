@@ -283,14 +283,19 @@ function renderTerminal(r) {
 
   cargarResumenEntrega(r.entrega_id);
   habilitarSwipe(card, r.entrega_id);
-  card.addEventListener('touchend', e => {
-  // si hubo swipe, no es tap
-  if (Math.abs(currentX) > 10) return;
+  let tapTimer = 0;
 
-  toggleDetalleTerminal(r.entrega_id);
+card.addEventListener('touchstart', () => {
+  tapTimer = Date.now();
 });
 
-  return card;
+card.addEventListener('touchend', () => {
+  if (Date.now() - tapTimer < 200) {
+    toggleDetalleTerminal(r.entrega_id);
+  }
+});
+
+return card;
 }
 
 /* =========================
