@@ -197,46 +197,50 @@ function renderTerminal(r) {
   card.className = 'entrega';
 
   card.innerHTML = `
-    <div class="entrega-row entrega-terminal">
+  <div class="entrega-row entrega-terminal">
 
-      <div class="entrega-header">
-        <strong>Entrega ${r.entrega_id}</strong>
-      </div>
-
-      <div class="entrega-info">
-        <span class="material-symbols-rounded">location_on</span>
-        <span>${r.destino || '—'}</span>
-      </div>
-
-      <div class="entrega-info">
-        <span class="material-symbols-rounded">person</span>
-        <span>${r.nombre_receptor || r.cliente_nombre || '—'}</span>
-      </div>
-
-      <div class="entrega-info">
-        <span class="material-symbols-rounded">call</span>
-        <span>${r.telefono_receptor || '—'}</span>
-      </div>
-
-      <div class="entrega-info">
-        <span class="material-symbols-rounded">local_shipping</span>
-        <span>${r.transportadora || '—'}</span>
-      </div>
-
-      <div class="entrega-info">
-        <span class="material-symbols-rounded">inventory_2</span>
-        <span id="ubicacion-${r.entrega_id}">—</span>
-      </div>
-
-      <div class="entrega-info total">
-        <span class="material-symbols-rounded">payments</span>
-        <span id="total-${r.entrega_id}">— Bs</span>
-      </div>
-
+    <div class="entrega-header">
+      <strong>Entrega ${r.entrega_id}</strong><br>
+      <span class="cliente-linea">
+        Cliente: ${r.cliente_nombre || '—'}
+      </span>
     </div>
 
-    <div class="detalle hidden" id="detalle-${r.entrega_id}"></div>
-  `;
+    <div class="entrega-info">
+      <span class="material-symbols-rounded">location_on</span>
+      <span>${r.destino || '—'}</span>
+    </div>
+
+    <div class="entrega-info">
+      <span class="material-symbols-rounded">person</span>
+      <span>${r.nombre_receptor || r.cliente_nombre || '—'}</span>
+    </div>
+
+    <div class="entrega-info">
+      <span class="material-symbols-rounded">call</span>
+      <span>${r.telefono_receptor || '—'}</span>
+    </div>
+
+    <div class="entrega-info">
+      <span class="material-symbols-rounded">local_shipping</span>
+      <span>${r.transportadora || '—'}</span>
+    </div>
+
+    <div class="entrega-info">
+      <span class="material-symbols-rounded">inventory_2</span>
+      <span id="ubicacion-${r.entrega_id}">—</span>
+    </div>
+
+    <div class="entrega-info total">
+      <span class="material-symbols-rounded">payments</span>
+      <span id="total-${r.entrega_id}">— Bs</span>
+    </div>
+
+  </div>
+
+  <div class="detalle hidden" id="detalle-${r.entrega_id}"></div>
+`;
+
 
   // 🔹 Cargar ubicación + total SIN tap
   cargarResumenEntrega(r.entrega_id);
