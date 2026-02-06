@@ -317,4 +317,24 @@
   background: rgba(0,0,0,0.015);
 }
 
+/* =========================
+   FIX ALINEACIÓN ICONO ↔ TEXTO
+   ========================= */
+
+.entrega-ubicacion {
+  align-items: center;
+}
+
+.entrega-ubicacion .material-symbols-rounded {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  line-height: 20px;
+}
+
+.entrega-ubicacion span:not(.material-symbols-rounded) {
+  line-height: 20px;
+}
+
 
