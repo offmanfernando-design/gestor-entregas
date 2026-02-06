@@ -61,46 +61,56 @@ async function cargarEntregas() {
   
 
   // 🟡 TERMINAL
-   if (estadoActual === 'terminal') {
+  if (estadoActual === 'terminal') {
   console.log('🚀 ENTRÉ A TERMINAL');
   setConectando();
-   try {
-      const res = await fetch(`${API_BASE_URL}/api/receptores`);
-      const json = await res.json();
 
-     
+  try {
+    console.log('🚀 EJECUTANDO FETCH TERMINAL');
 
-      const data = json.data || [];
+    const res = await fetch(
+      `${API_BASE_URL}/api/receptores`,
+      { cache: 'no-store' }
+    );
 
-      if (!data.length) {
-        lista.innerHTML = `
-          <div style="
-            padding: 24px;
-            text-align: center;
-            color: var(--muted);
-            font-size: 14px;
-          ">
-            No hay entregas a terminal registradas.
-          </div>
-        `;
-        setConectado();
-        return;
-      }
+    console.log('📡 FETCH TERMINAL RESPUESTA', res.status);
 
-      data.forEach(r => {
-        lista.appendChild(renderTerminal(r));
-      });
+    const json = await res.json();
+    console.log('📦 DATA TERMINAL', json);
 
+    const data = json.data || [];
+
+    if (!data.length) {
+      lista.innerHTML = `
+        <div style="
+          padding: 24px;
+          text-align: center;
+          color: var(--muted);
+          font-size: 14px;
+        ">
+          No hay entregas a terminal registradas.
+        </div>
+      `;
       setConectado();
       return;
-
-    } catch {
-      if (currentToken === renderToken) {
-        setOffline();
-      }
-      return;
     }
-  } // ← cierre correcto del IF TERMINAL
+
+    data.forEach(r => {
+      lista.appendChild(renderTerminal(r));
+    });
+
+    setConectado();
+    return;
+
+  } catch (err) {
+    console.error('❌ ERROR FETCH TERMINAL', err);
+    if (currentToken === renderToken) {
+      setOffline();
+    }
+    return;
+  }
+} // ← cierre correcto del IF TERMINAL
+
 
   // 🔵 ALMACÉN / HISTORIAL
   const search = searchInput.value.trim();
