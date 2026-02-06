@@ -2,6 +2,9 @@ import API_BASE_URL from './config.js';
 
 let estadoActual = 'en_almacen';
 
+/* 🔹 FIX DUPLICACIÓN: token de render */
+let renderToken = 0;
+
 const lista = document.getElementById('listaEntregas');
 const searchInput = document.getElementById('searchInput');
 
@@ -50,46 +53,52 @@ function cambiarEstado(estado) {
    CARGAR
    ========================= */
 async function cargarEntregas() {
+  /* 🔹 FIX DUPLICACIÓN: token local */
+  const currentToken = ++renderToken;
+
   lista.innerHTML = '';
   setConectando();
 
-  // 🟡 TERMINAL (placeholder por ahora)
+  // 🟡 TERMINAL
   if (estadoActual === 'terminal') {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/receptores`);
-    const json = await res.json();
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/receptores`);
+      const json = await res.json();
 
-    const data = json.data || [];
+      /* 🔹 cancelar render viejo */
+      if (currentToken !== renderToken) return;
 
-    if (!data.length) {
-      lista.innerHTML = `
-        <div style="
-          padding: 24px;
-          text-align: center;
-          color: var(--muted);
-          font-size: 14px;
-        ">
-          No hay entregas a terminal registradas.
-        </div>
-      `;
+      const data = json.data || [];
+
+      if (!data.length) {
+        lista.innerHTML = `
+          <div style="
+            padding: 24px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+          ">
+            No hay entregas a terminal registradas.
+          </div>
+        `;
+        setConectado();
+        return;
+      }
+
+      data.forEach(r => {
+        lista.appendChild(renderTerminal(r));
+      });
+
       setConectado();
       return;
+
+    } catch {
+      setOffline();
+      return;
     }
-
-    data.forEach(r => {
-      lista.appendChild(renderTerminal(r));
-    });
-
-    setConectado();
-    return;
-
-  } catch {
-    setOffline();
-    return;
   }
-}
 
-  // 🔵 ALMACÉN / HISTORIAL (flujo actual intacto)
+  // 🔵 ALMACÉN / HISTORIAL
   const search = searchInput.value.trim();
   let url = `${API_BASE_URL}/gestor-entregas?estado=${estadoActual}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
@@ -97,6 +106,9 @@ async function cargarEntregas() {
   try {
     const res = await fetch(url);
     const json = await res.json();
+
+    /* 🔹 cancelar render viejo */
+    if (currentToken !== renderToken) return;
 
     const grupos = agruparPorCliente(json.data || []);
 
@@ -115,7 +127,12 @@ async function cargarEntregas() {
   }
 }
 
-searchInput.oninput = cargarEntregas;
+/* 🔹 BONUS: debounce search (no más renders locos) */
+let searchTimer;
+searchInput.oninput = () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(cargarEntregas, 300);
+};
 
 /* =========================
    AGRUPAR
@@ -192,21 +209,17 @@ function renderEntrega(entrega) {
   return card;
 }
 
+/* =========================
+   TERMINAL (SIN TOCAR)
+   ========================= */
 function renderTerminal(r) {
   const card = document.createElement('div');
-
-  // 🔹 añadimos swipe-card, nada más
   card.className = 'entrega swipe-card';
 
   card.innerHTML = `
-    <!-- 🔹 fondo del swipe -->
     <div class="swipe-bg">Entregado</div>
-
-    <!-- 🔹 contenido swipeable -->
     <div class="swipe-content">
-
       <div class="entrega-row entrega-terminal">
-
         <div class="entrega-header">
           <strong>Entrega ${r.entrega_id}</strong><br>
           <span class="cliente-linea">
@@ -243,110 +256,17 @@ function renderTerminal(r) {
           <span class="material-symbols-rounded">payments</span>
           <span id="total-${r.entrega_id}">— Bs</span>
         </div>
-
       </div>
 
       <div class="detalle hidden" id="detalle-${r.entrega_id}"></div>
-
     </div>
   `;
 
-  // 🔹 cargar resumen como ya tenías
   cargarResumenEntrega(r.entrega_id);
-
-  // 🔹 habilitar swipe (nuevo)
   habilitarSwipe(card, r.entrega_id);
-
-  // 🔹 tap solo para desglose (igual que antes)
   card.onclick = () => toggleDetalleTerminal(r.entrega_id);
 
   return card;
-}
-
-
-async function cargarResumenEntrega(entregaId) {
-  try {
-    const res = await fetch(
-      `${API_BASE_URL}/api/entregas/detalle/${entregaId}`
-    );
-    const productos = await res.json();
-
-    let total = 0;
-    let ubicacionFisica = '';
-
-    productos.forEach(p => {
-      total += Number(p.monto_total_bs || 0);
-      if (!ubicacionFisica && p.ubicacion_fisica) {
-        ubicacionFisica = p.ubicacion_fisica;
-      }
-    });
-
-    const ub = document.getElementById(`ubicacion-${entregaId}`);
-    if (ub) ub.textContent = ubicacionFisica || '—';
-
-    const tot = document.getElementById(`total-${entregaId}`);
-    if (tot) tot.textContent = `${total} Bs`;
-
-  } catch (err) {
-    console.error('Error cargando resumen', err);
-  }
-}
-
-async function toggleDetalleTerminal(entregaId) {
-  const cont = document.getElementById(`detalle-${entregaId}`);
-  if (!cont) return;
-
-  if (!cont.classList.contains('hidden')) {
-    cont.classList.add('hidden');
-    return;
-  }
-
-  cont.classList.remove('hidden');
-  cont.innerHTML = '<small>Cargando detalle…</small>';
-
-  try {
-    const res = await fetch(
-      `${API_BASE_URL}/api/entregas/detalle/${entregaId}`
-    );
-    const productos = await res.json();
-
-    let html = '';
-    let total = 0;
-    let ubicacionFisica = '';
-
-    productos.forEach((p, i) => {
-      const monto = Number(p.monto_total_bs || 0);
-      total += monto;
-      if (!ubicacionFisica && p.ubicacion_fisica) {
-        ubicacionFisica = p.ubicacion_fisica;
-      }
-
-      html += `
-        <div class="detalle-item">
-          <strong>${i + 1}) ${p.descripcion_producto}</strong><br>
-          <small>${monto} Bs</small>
-        </div>
-      `;
-    });
-
-    html += `
-      <div class="detalle-total">
-        <strong>Total: ${total} Bs</strong>
-      </div>
-    `;
-
-    cont.innerHTML = html;
-
-    // 🔹 Actualizar ubicación física en la tarjeta
-    const ubEl = document.getElementById(`ubicacion-${entregaId}`);
-    if (ubEl && ubicacionFisica) {
-      ubEl.textContent = ubicacionFisica;
-    }
-
-  } catch (err) {
-    console.error(err);
-    cont.innerHTML = '<small>Error al cargar detalle</small>';
-  }
 }
 
 /* =========================
@@ -362,6 +282,9 @@ async function confirmarEntrega(id) {
 /* INIT */
 cargarEntregas();
 
+/* =========================
+   SWIPE TERMINAL (SIN TOCAR)
+   ========================= */
 function habilitarSwipe(card, entregaId) {
   let startX = 0;
   let currentX = 0;
@@ -396,5 +319,3 @@ function habilitarSwipe(card, entregaId) {
     currentX = 0;
   });
 }
-
-
