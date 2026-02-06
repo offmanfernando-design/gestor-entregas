@@ -56,10 +56,11 @@ async function cargarEntregas() {
   const currentToken = ++renderToken;
 
   lista.innerHTML = '';
-  setConectando();
+  
 
   // 🟡 TERMINAL
   if (estadoActual === 'terminal') {
+     setConectando();
     try {
       const res = await fetch(`${API_BASE_URL}/api/receptores`);
       const json = await res.json();
@@ -102,6 +103,7 @@ async function cargarEntregas() {
   const search = searchInput.value.trim();
   let url = `${API_BASE_URL}/gestor-entregas?estado=${estadoActual}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
+   setConectando();
 
   try {
     const res = await fetch(url);
