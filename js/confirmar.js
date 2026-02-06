@@ -2,6 +2,18 @@ import API_BASE_URL from './config.js';
 
 let estadoActual = 'en_almacen';
 
+/* 🔹 FIX DUPLICACIÓN: token de render */
+let renderToken = 0;
+
+const lista = document.getElementById('listaEntregas');
+const searchInput = document.getElementById('searchInput');
+
+const tabAlmacen = document.getElementById('tab-almacen');
+const tabTerminal = document.getElementById('tab-terminal');
+const tabHistorial = document.getElementById('tab-historial');
+
+const syncStatus = document.getElementById('syncStatus');
+
 /* =========================
    CONEXIÓN
    ========================= */
@@ -41,14 +53,20 @@ function cambiarEstado(estado) {
    CARGAR
    ========================= */
 async function cargarEntregas() {
+  /* 🔹 FIX DUPLICACIÓN: token local */
+  const currentToken = ++renderToken;
+
   lista.innerHTML = '';
   setConectando();
 
-  // 🟡 TERMINAL (placeholder por ahora)
+  // 🟡 TERMINAL
   if (estadoActual === 'terminal') {
     try {
       const res = await fetch(`${API_BASE_URL}/api/receptores`);
       const json = await res.json();
+
+      /* 🔹 cancelar render viejo */
+      if (currentToken !== renderToken) return;
 
       const data = json.data || [];
 
@@ -80,7 +98,7 @@ async function cargarEntregas() {
     }
   }
 
-  // 🔵 ALMACÉN / HISTORIAL (flujo actual intacto)
+  // 🔵 ALMACÉN / HISTORIAL
   const search = searchInput.value.trim();
   let url = `${API_BASE_URL}/gestor-entregas?estado=${estadoActual}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
@@ -88,6 +106,9 @@ async function cargarEntregas() {
   try {
     const res = await fetch(url);
     const json = await res.json();
+
+    /* 🔹 cancelar render viejo */
+    if (currentToken !== renderToken) return;
 
     const grupos = agruparPorCliente(json.data || []);
 
