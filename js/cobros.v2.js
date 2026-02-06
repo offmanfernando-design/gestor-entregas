@@ -384,12 +384,12 @@ async function generarMensaje(clienteId) {
   msg += esMultiple ? '📦 Detalle:\n\n' : '📦 Producto:\n\n';
 
   productos.forEach((p, i) => {
-    const cobrarBs = Number(p.cobrar_bs || 0);
-    total += cobrarBs;
+  const montoBs = Number(p.monto_total_bs || 0);
+  total += montoBs;
 
-    msg += `${i + 1}) Producto: ${p.descripcion_producto}\n`;
-    msg += `Costo: ${p.peso_cobrado} × ${p.tipo_de_cobro} × ${p.dolar_cliente} = ${cobrarBs} Bs\n\n`;
-  });
+  msg += `${i + 1}) Producto: ${p.descripcion_producto}\n`;
+  msg += `Costo: ${p.peso_cobrado} × ${p.tipo_de_cobro} × ${p.dolar_cliente} = ${montoBs} Bs\n\n`;
+});
 
   /* =========================
      TOTAL (solo si es múltiple)
