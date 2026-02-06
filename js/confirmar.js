@@ -254,6 +254,55 @@ function renderTerminal(r) {
   return card;
 }
 
+async function toggleDetalleTerminal(entregaId) {
+  const cont = document.getElementById(`detalle-${entregaId}`);
+  if (!cont) return;
+
+  if (!cont.classList.contains('hidden')) {
+    cont.classList.add('hidden');
+    return;
+  }
+
+  cont.classList.remove('hidden');
+
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/api/cobros/entrega/${entregaId}`
+    );
+    const productos = await res.json();
+
+    let html = '';
+    let total = 0;
+
+    productos.forEach((p, i) => {
+      const monto = Number(p.monto_total_bs || 0);
+      total += monto;
+
+      html += `
+        <div class="detalle-item">
+          <strong>${i + 1}) ${p.descripcion_producto}</strong><br>
+          <small>
+            ${p.peso_cobrado} × ${p.tipo_de_cobro} × ${p.dolar_cliente}
+            = ${monto} Bs
+          </small>
+        </div>
+      `;
+    });
+
+    html += `
+      <div class="detalle-total">
+        Total: ${total} Bs
+      </div>
+    `;
+
+    cont.innerHTML = html;
+
+  } catch {
+    cont.innerHTML = '<small>Error al cargar detalle</small>';
+  }
+}
+
+
 /* =========================
    CONFIRMAR ENTREGA
    ========================= */
