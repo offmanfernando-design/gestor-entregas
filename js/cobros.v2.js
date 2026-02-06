@@ -353,6 +353,8 @@ async function generarMensaje(clienteId) {
 
   const c0 = productos[0];
   const nombre = c0.cliente_nombre || '';
+
+  // 👉 SOLO PARA TEXTO / ENCABEZADO
   const esSantaCruz = (c0.departamento_destino || '')
     .toLowerCase()
     .includes('santa cruz');
@@ -384,12 +386,12 @@ async function generarMensaje(clienteId) {
   msg += esMultiple ? '📦 Detalle:\n\n' : '📦 Producto:\n\n';
 
   productos.forEach((p, i) => {
-  const montoBs = Number(p.monto_total_bs || 0);
-  total += montoBs;
+    const montoBs = Number(p.monto_total_bs || 0);
+    total += montoBs;
 
-  msg += `${i + 1}) Producto: ${p.descripcion_producto}\n`;
-  msg += `Costo: ${p.peso_cobrado} × ${p.tipo_de_cobro} × ${p.dolar_cliente} = ${montoBs} Bs\n\n`;
-});
+    msg += `${i + 1}) Producto: ${p.descripcion_producto}\n`;
+    msg += `Costo: ${p.peso_cobrado} × ${p.tipo_de_cobro} × ${p.dolar_cliente} = ${montoBs} Bs\n\n`;
+  });
 
   /* =========================
      TOTAL (solo si es múltiple)
@@ -400,35 +402,36 @@ async function generarMensaje(clienteId) {
   }
 
   /* =========================
-     BLOQUE FINAL SEGÚN UBICACIÓN
+     BLOQUE FINAL (DECIDE BACKEND)
      ========================= */
 
-  if (esSantaCruz) {
-    msg +=
-      '💳 Pago: QR o efectivo (solo Bs)\n\n' +
-      '🕒 Horario:\n' +
-      '09:30–12:00 / 14:30–18:00\n\n' +
-      '📍 Ubicación:\n' +
-      'https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n';
-  } else {
-    try {
-      const resLink = await fetch(
-        `${API_BASE_URL}/api/receptores/link/${clienteId}`
-      );
+  try {
+    const resLink = await fetch(
+      `${API_BASE_URL}/api/receptores/link/${clienteId}`
+    );
+
+    if (resLink.ok) {
       const dataLink = await resLink.json();
 
       if (dataLink.link) {
         msg +=
           '📦 Para coordinar el envío, completa este formulario:\n' +
           `${dataLink.link}\n\n`;
+      } else {
+        // fallback oficina
+        msg +=
+          '💳 Pago: QR o efectivo (solo Bs)\n\n' +
+          '🕒 Horario:\n' +
+          '09:30–12:00 / 14:30–18:00\n\n' +
+          '📍 Ubicación:\n' +
+          'https://maps.app.goo.gl/fP472SmY3XjTmJBL8\n\n';
       }
-    } catch (err) {
-      console.error('Error obteniendo link de receptor', err);
     }
+  } catch (err) {
+    console.error('Error obteniendo link de receptor', err);
   }
 
   msg += '— Bolivia Imports';
 
   return encodeURIComponent(msg);
 }
-
