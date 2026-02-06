@@ -53,56 +53,53 @@ function cambiarEstado(estado) {
    CARGAR
    ========================= */
 async function cargarEntregas() {
-  /* 🔹 FIX DUPLICACIÓN: token local */
   const currentToken = ++renderToken;
 
   lista.innerHTML = '';
   setConectando();
 
   // 🟡 TERMINAL
-// 🟡 TERMINAL
-if (estadoActual === 'terminal') {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/receptores`);
-    const json = await res.json();
+  if (estadoActual === 'terminal') {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/receptores`);
+      const json = await res.json();
 
-    if (currentToken !== renderToken) {
+      if (currentToken !== renderToken) {
+        setConectado();
+        return;
+      }
+
+      const data = json.data || [];
+
+      if (!data.length) {
+        lista.innerHTML = `
+          <div style="
+            padding: 24px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+          ">
+            No hay entregas a terminal registradas.
+          </div>
+        `;
+        setConectado();
+        return;
+      }
+
+      data.forEach(r => {
+        lista.appendChild(renderTerminal(r));
+      });
+
       setConectado();
       return;
-    }
 
-    const data = json.data || [];
-
-    if (!data.length) {
-      lista.innerHTML = `
-        <div style="
-          padding: 24px;
-          text-align: center;
-          color: var(--muted);
-          font-size: 14px;
-        ">
-          No hay entregas a terminal registradas.
-        </div>
-      `;
-      setConectado();
+    } catch {
+      if (currentToken === renderToken) {
+        setOffline();
+      }
       return;
     }
-
-    data.forEach(r => {
-      lista.appendChild(renderTerminal(r));
-    });
-
-    setConectado();
-    return;
-
-  } catch {
-  if (currentToken === renderToken) {
-    setOffline();
-  }
-  return;
-}
-
-
+  } // ← cierre correcto del IF TERMINAL
 
   // 🔵 ALMACÉN / HISTORIAL
   const search = searchInput.value.trim();
@@ -113,7 +110,6 @@ if (estadoActual === 'terminal') {
     const res = await fetch(url);
     const json = await res.json();
 
-    /* 🔹 cancelar render viejo */
     if (currentToken !== renderToken) return;
 
     const grupos = agruparPorCliente(json.data || []);
@@ -129,14 +125,14 @@ if (estadoActual === 'terminal') {
 
     setConectado();
   } catch {
-  if (currentToken === renderToken) {
-    setOffline();
+    if (currentToken === renderToken) {
+      setOffline();
+    }
+    return;
   }
-  return;
-}
-}
+} // ← cierre correcto de cargarEntregas()
 
-/* 🔹 BONUS: debounce search (no más renders locos) */
+/* 🔹 BONUS: debounce search */
 let searchTimer;
 searchInput.oninput = () => {
   clearTimeout(searchTimer);
