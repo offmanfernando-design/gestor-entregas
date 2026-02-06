@@ -404,4 +404,10 @@ async function cargarResumenEntrega(entregaId) {
   }
 }
 
+function toggleDetalleTerminal(entregaId) {
+  const cont = document.getElementById(`detalle-${entregaId}`);
+  if (!cont) return;
+
+  cont.classList.toggle('hidden');
+}
 
