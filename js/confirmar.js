@@ -1,3 +1,5 @@
+console.log('CONFIRMAR.JS CARGADO', new Date().toISOString());
+
 import API_BASE_URL from './config.js';
 
 let estadoActual = 'en_almacen';
