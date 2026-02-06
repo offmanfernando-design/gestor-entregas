@@ -60,49 +60,47 @@ async function cargarEntregas() {
   setConectando();
 
   // 🟡 TERMINAL
-  if (estadoActual === 'terminal') {
-    try {
-     const res = await fetch(`${API_BASE_URL}/api/receptores`);
-const json = await res.json();
+// 🟡 TERMINAL
+if (estadoActual === 'terminal') {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/receptores`);
+    const json = await res.json();
 
-if (currentToken !== renderToken) {
-  setConectado();
-  return;
-}
-
-
-      /* 🔹 cancelar render viejo */
-      if (currentToken !== renderToken) return;
-
-      const data = json.data || [];
-
-      if (!data.length) {
-        lista.innerHTML = `
-          <div style="
-            padding: 24px;
-            text-align: center;
-            color: var(--muted);
-            font-size: 14px;
-          ">
-            No hay entregas a terminal registradas.
-          </div>
-        `;
-        setConectado();
-        return;
-      }
-
-      data.forEach(r => {
-        lista.appendChild(renderTerminal(r));
-      });
-
+    if (currentToken !== renderToken) {
       setConectado();
       return;
+    }
 
-    } catch {
-      setOffline();
+    const data = json.data || [];
+
+    if (!data.length) {
+      lista.innerHTML = `
+        <div style="
+          padding: 24px;
+          text-align: center;
+          color: var(--muted);
+          font-size: 14px;
+        ">
+          No hay entregas a terminal registradas.
+        </div>
+      `;
+      setConectado();
       return;
     }
+
+    data.forEach(r => {
+      lista.appendChild(renderTerminal(r));
+    });
+
+    setConectado();
+    return;
+
+  } catch {
+    setOffline();
+    return;
   }
+}
+
 
   // 🔵 ALMACÉN / HISTORIAL
   const search = searchInput.value.trim();
