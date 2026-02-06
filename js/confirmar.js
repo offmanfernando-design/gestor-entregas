@@ -194,62 +194,75 @@ function renderEntrega(entrega) {
 
 function renderTerminal(r) {
   const card = document.createElement('div');
-  card.className = 'entrega';
+
+  // 🔹 añadimos swipe-card, nada más
+  card.className = 'entrega swipe-card';
 
   card.innerHTML = `
-  <div class="entrega-row entrega-terminal">
+    <!-- 🔹 fondo del swipe -->
+    <div class="swipe-bg">Entregado</div>
 
-    <div class="entrega-header">
-      <strong>Entrega ${r.entrega_id}</strong><br>
-      <span class="cliente-linea">
-        Cliente: ${r.cliente_nombre || '—'}
-      </span>
+    <!-- 🔹 contenido swipeable -->
+    <div class="swipe-content">
+
+      <div class="entrega-row entrega-terminal">
+
+        <div class="entrega-header">
+          <strong>Entrega ${r.entrega_id}</strong><br>
+          <span class="cliente-linea">
+            Cliente: ${r.cliente_nombre || '—'}
+          </span>
+        </div>
+
+        <div class="entrega-info">
+          <span class="material-symbols-rounded">location_on</span>
+          <span>${r.destino || '—'}</span>
+        </div>
+
+        <div class="entrega-info">
+          <span class="material-symbols-rounded">person</span>
+          <span>${r.nombre_receptor || r.cliente_nombre || '—'}</span>
+        </div>
+
+        <div class="entrega-info">
+          <span class="material-symbols-rounded">call</span>
+          <span>${r.telefono_receptor || '—'}</span>
+        </div>
+
+        <div class="entrega-info">
+          <span class="material-symbols-rounded">local_shipping</span>
+          <span>${r.transportadora || '—'}</span>
+        </div>
+
+        <div class="entrega-info">
+          <span class="material-symbols-rounded">inventory_2</span>
+          <span id="ubicacion-${r.entrega_id}">—</span>
+        </div>
+
+        <div class="entrega-info total">
+          <span class="material-symbols-rounded">payments</span>
+          <span id="total-${r.entrega_id}">— Bs</span>
+        </div>
+
+      </div>
+
+      <div class="detalle hidden" id="detalle-${r.entrega_id}"></div>
+
     </div>
+  `;
 
-    <div class="entrega-info">
-      <span class="material-symbols-rounded">location_on</span>
-      <span>${r.destino || '—'}</span>
-    </div>
-
-    <div class="entrega-info">
-      <span class="material-symbols-rounded">person</span>
-      <span>${r.nombre_receptor || r.cliente_nombre || '—'}</span>
-    </div>
-
-    <div class="entrega-info">
-      <span class="material-symbols-rounded">call</span>
-      <span>${r.telefono_receptor || '—'}</span>
-    </div>
-
-    <div class="entrega-info">
-      <span class="material-symbols-rounded">local_shipping</span>
-      <span>${r.transportadora || '—'}</span>
-    </div>
-
-    <div class="entrega-info">
-      <span class="material-symbols-rounded">inventory_2</span>
-      <span id="ubicacion-${r.entrega_id}">—</span>
-    </div>
-
-    <div class="entrega-info total">
-      <span class="material-symbols-rounded">payments</span>
-      <span id="total-${r.entrega_id}">— Bs</span>
-    </div>
-
-  </div>
-
-  <div class="detalle hidden" id="detalle-${r.entrega_id}"></div>
-`;
-
-
-  // 🔹 Cargar ubicación + total SIN tap
+  // 🔹 cargar resumen como ya tenías
   cargarResumenEntrega(r.entrega_id);
 
-  // 🔹 Tap solo para ver desglose
+  // 🔹 habilitar swipe (nuevo)
+  habilitarSwipe(card, r.entrega_id);
+
+  // 🔹 tap solo para desglose (igual que antes)
   card.onclick = () => toggleDetalleTerminal(r.entrega_id);
 
   return card;
 }
+
 
 async function cargarResumenEntrega(entregaId) {
   try {
@@ -348,3 +361,40 @@ async function confirmarEntrega(id) {
 
 /* INIT */
 cargarEntregas();
+
+function habilitarSwipe(card, entregaId) {
+  let startX = 0;
+  let currentX = 0;
+
+  const content = card.querySelector('.swipe-content');
+
+  card.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    currentX = 0;
+    card.classList.add('swiping');
+    content.style.transition = 'none';
+  });
+
+  card.addEventListener('touchmove', e => {
+    const dx = e.touches[0].clientX - startX;
+    if (dx < 0) {
+      currentX = dx;
+      content.style.transform = `translateX(${dx}px)`;
+    }
+  });
+
+  card.addEventListener('touchend', async () => {
+    content.style.transition = 'transform .25s ease';
+
+    if (currentX < -120) {
+      card.classList.add('confirmed');
+      await confirmarEntrega(entregaId);
+    }
+
+    content.style.transform = 'translateX(0)';
+    card.classList.remove('swiping');
+    currentX = 0;
+  });
+}
+
+
