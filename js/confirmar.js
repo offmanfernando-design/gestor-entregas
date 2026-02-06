@@ -197,35 +197,40 @@ function renderTerminal(r) {
   card.className = 'entrega';
 
   card.innerHTML = `
-    <div class="entrega-row" style="gap: 12px;">
+    <div class="entrega-row entrega-terminal">
 
-      <div class="entrega-monto">
-        Entrega ${r.entrega_id}
+      <div class="entrega-header">
+        <strong>Entrega ${r.entrega_id}</strong>
       </div>
 
-      <div class="entrega-ubicacion">
+      <div class="entrega-info">
         <span class="material-symbols-rounded">location_on</span>
-        ${r.destino || '—'}
+        <span>${r.destino || '—'}</span>
       </div>
 
-      <div class="entrega-ubicacion">
+      <div class="entrega-info">
         <span class="material-symbols-rounded">person</span>
-        ${r.nombre_receptor || r.cliente_nombre || '—'}
+        <span>${r.nombre_receptor || r.cliente_nombre || '—'}</span>
       </div>
 
-      <div class="entrega-ubicacion">
+      <div class="entrega-info">
         <span class="material-symbols-rounded">call</span>
-        ${r.telefono_receptor || '—'}
+        <span>${r.telefono_receptor || '—'}</span>
       </div>
 
-      <div class="entrega-ubicacion">
+      <div class="entrega-info">
         <span class="material-symbols-rounded">local_shipping</span>
-        ${r.transportadora || '—'}
+        <span>${r.transportadora || '—'}</span>
       </div>
 
-      <div class="entrega-ubicacion">
+      <div class="entrega-info">
         <span class="material-symbols-rounded">inventory_2</span>
         <span id="ubicacion-${r.entrega_id}">—</span>
+      </div>
+
+      <div class="entrega-info total">
+        <span class="material-symbols-rounded">payments</span>
+        <span id="total-${r.entrega_id}">— Bs</span>
       </div>
 
     </div>
@@ -233,9 +238,41 @@ function renderTerminal(r) {
     <div class="detalle hidden" id="detalle-${r.entrega_id}"></div>
   `;
 
+  // 🔹 Cargar ubicación + total SIN tap
+  cargarResumenEntrega(r.entrega_id);
+
+  // 🔹 Tap solo para ver desglose
   card.onclick = () => toggleDetalleTerminal(r.entrega_id);
 
   return card;
+}
+
+async function cargarResumenEntrega(entregaId) {
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/api/entregas/detalle/${entregaId}`
+    );
+    const productos = await res.json();
+
+    let total = 0;
+    let ubicacionFisica = '';
+
+    productos.forEach(p => {
+      total += Number(p.monto_total_bs || 0);
+      if (!ubicacionFisica && p.ubicacion_fisica) {
+        ubicacionFisica = p.ubicacion_fisica;
+      }
+    });
+
+    const ub = document.getElementById(`ubicacion-${entregaId}`);
+    if (ub) ub.textContent = ubicacionFisica || '—';
+
+    const tot = document.getElementById(`total-${entregaId}`);
+    if (tot) tot.textContent = `${total} Bs`;
+
+  } catch (err) {
+    console.error('Error cargando resumen', err);
+  }
 }
 
 async function toggleDetalleTerminal(entregaId) {
