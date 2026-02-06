@@ -338,3 +338,47 @@ function habilitarSwipe(card, entregaId) {
     currentX = 0;
   });
 }
+
+/* =========================
+   DETALLE ENTREGA TERMINAL
+   ========================= */
+async function cargarResumenEntrega(entregaId) {
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/api/entregas/detalle/${entregaId}`,
+      { cache: 'no-store' }
+    );
+
+    const productos = await res.json();
+
+    const cont = document.getElementById(`detalle-${entregaId}`);
+    if (!cont) return;
+
+    let html = '';
+    let total = 0;
+
+    productos.forEach((p, i) => {
+      const monto = Number(p.monto_total_bs || 0);
+      total += monto;
+
+      html += `
+        <div class="detalle-item">
+          <strong>${i + 1}) ${p.descripcion_producto}</strong><br>
+          <small>${monto} Bs</small>
+        </div>
+      `;
+    });
+
+    html += `
+      <div class="detalle-total">
+        <strong>Total: ${total} Bs</strong>
+      </div>
+    `;
+
+    cont.innerHTML = html;
+
+  } catch (err) {
+    console.error('Error cargando detalle entrega', err);
+  }
+}
+
