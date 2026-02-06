@@ -356,10 +356,16 @@ async function cargarResumenEntrega(entregaId) {
 
     let html = '';
     let total = 0;
+    let ubicacionFisica = '';
 
     productos.forEach((p, i) => {
       const monto = Number(p.monto_total_bs || 0);
       total += monto;
+
+      // tomar la primera ubicación válida
+      if (!ubicacionFisica && p.ubicacion_fisica) {
+        ubicacionFisica = p.ubicacion_fisica;
+      }
 
       html += `
         <div class="detalle-item">
@@ -375,10 +381,27 @@ async function cargarResumenEntrega(entregaId) {
       </div>
     `;
 
+    // 🔹 pintar detalle
     cont.innerHTML = html;
+
+    // 🔹 reflejar ubicación física en la tarjeta
+    const ubEl = document.getElementById(`ubicacion-${entregaId}`);
+    if (ubEl) {
+      ubEl.textContent = ubicacionFisica || '—';
+    }
+
+    // 🔹 reflejar total en la tarjeta
+    const totalEl = document.getElementById(`total-${entregaId}`);
+    if (totalEl) {
+      totalEl.textContent = `${total} Bs`;
+    }
+
+    // 🔹 dejar el detalle cerrado (solo se abre con tap)
+    cont.classList.add('hidden');
 
   } catch (err) {
     console.error('Error cargando detalle entrega', err);
   }
 }
+
 
